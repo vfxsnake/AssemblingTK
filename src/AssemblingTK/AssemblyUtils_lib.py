@@ -3,18 +3,17 @@ import pymel.core as pm
 class AssemblyUtils():
     ''' maya Genearl Tools'''
 
-    def GetSelection():
+    def GetSelection(self):
         '''return a list of selected objets'''
 
         return pm.ls(selection = True)
 
-    def GetByType(InType):
+    def GetByType(self, InType):
         '''return '''
         return pm.ls(type=InType)
 
-    def GetRoot(Item):
+    def GetRoot(self, Item):
         pyItem = PyNode(Item)
 
         RootParent = pyItem.getAllParents()[-1]
-    
     
