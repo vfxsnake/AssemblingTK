@@ -49,8 +49,9 @@ class AssemblyUtils():
         for element in RootsList:
             rootString += self.BuildRootString(element)
 
-        
+
         if rootString:
+            print rootString
             abcFile = outPath + "/{0}.abc".format(AbcName)
             self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
 
