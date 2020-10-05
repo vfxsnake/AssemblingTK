@@ -28,17 +28,12 @@ class AssemblyUtils():
 
         # add custom flags to if needed
         customFlags = '-uvWrite {0} -worldSpace -writeUVSets -dataFormat ogawa '.format(additionalFlags)
-
-   
+        # export flag
         rootFlags = '{0} '.format(ExportRootsString)
-
-    
-        fileFlag = '-file {0};'.format('C:/Users/vr-dev/Documents/maya/projects/default/cache/alembic/test.abc')
+        # file name
+        fileFlag = '-file {0};'.format(outPath)
         
-        
-        
-        jExport = rangeFlag + customFlags + rootFlag + fileFlag
-        
+        jExport = rangeFlag + customFlag + rootFlag + fileFlag
         
         pm.AbcExport(j=jExport)
 
