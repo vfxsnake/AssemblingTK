@@ -30,7 +30,7 @@ class AssemblyUtils():
         customFlags = '-uvWrite {0} -worldSpace -writeUVSets -dataFormat ogawa '.format(additionalFlags)
 
    
-        rootFlat += '{0} '.format(ExportRootsString)
+        rootFlags += '{0} '.format(ExportRootsString)
 
     
         fileFlag = '-file {0};'.format('C:/Users/vr-dev/Documents/maya/projects/default/cache/alembic/test.abc')
