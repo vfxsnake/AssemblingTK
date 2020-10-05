@@ -27,7 +27,7 @@ class AssemblyUtils():
         rangeFlag = '-frameRange {0} {1} '.format(startFrame, endFrame)
 
         # add custom flags to if needed
-        customFlags = '-uvWrite {0} -worldSpace -writeUVSets -dataFormat ogawa '.format(additionalFlags)
+        customFlag = '-uvWrite {0} -worldSpace -writeUVSets -dataFormat ogawa '.format(additionalFlags)
         # export flag
         rootFlags = '{0} '.format(ExportRootsString)
         # file name
