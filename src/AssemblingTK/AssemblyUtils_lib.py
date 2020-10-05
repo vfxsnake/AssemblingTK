@@ -71,7 +71,7 @@ class AssemblyUtils():
         """
         returns a list of objects connected to shading group filtered by the ShapeType
         """
-        return pm.listConnections(sg, shapes=True, type=ShapeType)
+        return pm.listConnections(ShadingGroup, shapes=True, type=ShapeType)
     
     def WriteJson(self, InDic, jsonPath, jsonName):
         """
