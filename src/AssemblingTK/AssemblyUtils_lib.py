@@ -31,7 +31,7 @@ class AssemblyUtils():
         # export flag
         rootFlag = '{0} '.format(ExportRootsString)
         # file name
-        fileFlag = '-file {0};'.format(outPath)
+        fileFlag = '-file {0}'.format(outPath)
         
         jExport = rangeFlag + customFlag + rootFlag + fileFlag
         
