@@ -67,6 +67,25 @@ class AssemblyUtils():
                 self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
 
 
+    def GetShapesFromSG(self, ShadingGroup, ShapeType='mesh'):
+        """
+        returns a list of objects connected to shading group
+        """
+        return pm.listConnections(sg, shapes=True, type=ShapeType)
+    
+    def buildShaderAsignMap(self):
+        ''' 
+            Buids a dictionary and stores it in a json archive for future lookup.
+        '''
+        sgs = pm.ls(type='shadingEngine')
 
-
-        
+        for sg in sgs:
+            ## ToDo create a dictionary of  shadin group and mesh list, pgyeti list, rs list
+            if 'initilalShading' in sg.name():
+                continue
+            else:
+                    
+                MeshList =  GetShapesFromSG(sg, 'mesh')
+                YetiList =  GetShapesFromSG(sg, 'pgYetiMaya')
+                StandInsList =  GetShapesFromSG(sg, 'rs') ## ToDo get the correct type for rs standins
+    
