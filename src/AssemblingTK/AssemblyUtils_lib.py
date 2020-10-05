@@ -117,4 +117,4 @@ class AssemblyUtils():
                         ShadingMap['{0}'.format(sg.name())] = KeyValue
             
             if ShadingMap:
-                self.WriteJson(shdingMap, MapPath,MapName)
+                self.WriteJson(ShadingMap, MapPath,MapName)
