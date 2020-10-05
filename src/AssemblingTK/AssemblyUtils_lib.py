@@ -52,7 +52,7 @@ class AssemblyUtils():
         
         if rootString:
             abcFile = outPath + "/{0}".format(AbcName)
-            self.ExportABC(startFrame, endFrame, rootString, outPath, additionalFlags)
+            self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
 
     
     def MultipleAbcExport(self, RootsList, startFrame, endFrame, outPath, additionalFlags=None):
