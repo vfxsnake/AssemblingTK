@@ -51,7 +51,7 @@ class AssemblyUtils():
 
         
         if rootString:
-            abcFile = outPath + "/{0}".format(AbcName)
+            abcFile = outPath + "/{0}.abc".format(AbcName)
             self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
 
     
