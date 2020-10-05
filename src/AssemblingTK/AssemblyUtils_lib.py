@@ -67,11 +67,14 @@ class AssemblyUtils():
                 self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
 
 
-    def GetShapesFromSG(self, ShadingGroup, ShapeType='mesh'):
+    def GetShapesFromSG(self, ShadingGroupName, ShapeType='mesh'):
         """
         returns a list of objects connected to shading group filtered by the ShapeType
+        ShadingGroupName must be a strign because is call by maya.cmds
+        the list must be an array of strins to comvert later to json
         """
-        return pm.listConnections(ShadingGroup, shapes=True, type=ShapeType)
+        import maya.cmds as cmds
+        return cmds.listConnections(ShadingGroupName, shapes=True, type=ShapeType)
     
     def WriteJson(self, InDic, jsonPath, jsonName):
         """
@@ -105,15 +108,15 @@ class AssemblyUtils():
 
                     KeyValue = []
 
-                    MeshList =  self.GetShapesFromSG(sg, 'mesh')
+                    MeshList =  self.GetShapesFromSG(sg.name(), 'mesh')
                     if MeshList:
                         KeyValue += MeshList
                         
-                    YetiList =  self.GetShapesFromSG(sg, 'pgYetiMaya')
+                    YetiList =  self.GetShapesFromSG(sg.name(), 'pgYetiMaya')
                     if YetiList:
                         KeyValue += YetiList
 
-                    StandInsList =  self.GetShapesFromSG(sg, 'rs') ## ToDo get the correct type for rs standin
+                    StandInsList =  self.GetShapesFromSG(sg.name(), 'rs') ## ToDo get the correct type for rs standin
                     if StandInsList:
                         KeyValue += StandInsList
 
