@@ -80,7 +80,7 @@ class AssemblyUtils():
         import json
 
         fileName ='{0}/{1}'.format(jsonPath, jsonName) 
-        with open(fileName, w+) as jsonFile:
+        with open(fileName, 'w+') as jsonFile:
             json.dump(InDic,jsonFile)
         
 
