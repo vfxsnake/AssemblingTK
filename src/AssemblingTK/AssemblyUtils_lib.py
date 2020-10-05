@@ -79,9 +79,11 @@ class AssemblyUtils():
         """
         import json
 
-        fileName ='{0}/{1}'.format(jsonPath, jsonName) 
+        fileName ='{0}/{1}'.format(jsonPath, jsonName)
+        print "json FileName: ", fileName 
         with open(fileName, 'w+') as jsonFile:
             json.dump(InDic,jsonFile)
+            print "WriteJson Done"
         
 
     def buildShaderAsignMap(self, MapPath, MapName):
@@ -119,4 +121,5 @@ class AssemblyUtils():
                         ShadingMap['{0}'.format(sg.name())] = KeyValue
             
             if ShadingMap:
+                print ShadingMap
                 self.WriteJson(ShadingMap, MapPath,MapName)
