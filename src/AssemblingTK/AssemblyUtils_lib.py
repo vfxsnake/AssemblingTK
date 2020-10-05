@@ -69,23 +69,52 @@ class AssemblyUtils():
 
     def GetShapesFromSG(self, ShadingGroup, ShapeType='mesh'):
         """
-        returns a list of objects connected to shading group
+        returns a list of objects connected to shading group filtered by the ShapeType
         """
         return pm.listConnections(sg, shapes=True, type=ShapeType)
     
-    def buildShaderAsignMap(self):
+    def WriteJson(self, InDic, jsonPath, jsonName):
+        """
+            writes to disk the dictionary input in the specifyPath and name
+        """
+        import json
+
+        with open('{0}/{1}'.format(jsonPath, jsonName)) as jsonFile:
+            json.dump(InDic,jsonFile)
+
+    def buildShaderAsignMap(self, MapPath, MapName):
         ''' 
             Buids a dictionary and stores it in a json archive for future lookup.
         '''
         sgs = pm.ls(type='shadingEngine')
 
-        for sg in sgs:
-            ## ToDo create a dictionary of  shadin group and mesh list, pgyeti list, rs list
-            if 'initilalShading' in sg.name():
-                continue
-            else:
-                    
-                MeshList =  GetShapesFromSG(sg, 'mesh')
-                YetiList =  GetShapesFromSG(sg, 'pgYetiMaya')
-                StandInsList =  GetShapesFromSG(sg, 'rs') ## ToDo get the correct type for rs standins
-    
+        if sgs:
+            # creates the main Dictionary
+            ShadingMap = {}
+            for sg in sgs:
+
+                ## ToDo create a dictionary of  shadin group and mesh list, pgyeti list, rs list
+                if 'initilalShading' in sg.name():
+                    continue
+                else:
+                    # creates a key with the Sg name, te value will be the list returned by GetShapeFromSG
+
+                    KeyValue = []
+
+                    MeshList =  GetShapesFromSG(sg, 'mesh')
+                    if MeshList:
+                        KeyValue += meshList
+                        
+                    YetiList =  GetShapesFromSG(sg, 'pgYetiMaya')
+                    if YetiList:
+                        KeyValue += YetiList
+
+                    StandInsList =  GetShapesFromSG(sg, 'rs') ## ToDo get the correct type for rs standin
+                    if StandInsList:
+                        KeyValue += StandInsList
+
+                    if KeyValue:
+                        ShadingMap['{0}'.format(sg.name())] = KeyValue
+            
+            if ShadingMap:
+                self.WriteJson(shdingMap, MapPath,MapName)
