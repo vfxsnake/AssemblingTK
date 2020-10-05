@@ -79,8 +79,10 @@ class AssemblyUtils():
         """
         import json
 
-        with open('{0}/{1}'.format(jsonPath, jsonName)) as jsonFile:
+        fileName ='{0}/{1}'.format(jsonPath, jsonName) 
+        with open(fileName, w+) as jsonFile:
             json.dump(InDic,jsonFile)
+        
 
     def buildShaderAsignMap(self, MapPath, MapName):
         ''' 
