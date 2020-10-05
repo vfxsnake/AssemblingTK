@@ -29,7 +29,7 @@ class AssemblyUtils():
         # add custom flags to if needed
         customFlag = '-uvWrite {0} -worldSpace -writeUVSets -dataFormat ogawa '.format(additionalFlags)
         # export flag
-        rootFlags = '{0} '.format(ExportRootsString)
+        rootFlag = '{0} '.format(ExportRootsString)
         # file name
         fileFlag = '-file {0};'.format(outPath)
         
