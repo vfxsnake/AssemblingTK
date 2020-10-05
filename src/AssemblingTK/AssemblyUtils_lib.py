@@ -101,15 +101,15 @@ class AssemblyUtils():
 
                     KeyValue = []
 
-                    MeshList =  GetShapesFromSG(sg, 'mesh')
+                    MeshList =  self.GetShapesFromSG(sg, 'mesh')
                     if MeshList:
                         KeyValue += meshList
                         
-                    YetiList =  GetShapesFromSG(sg, 'pgYetiMaya')
+                    YetiList =  self.GetShapesFromSG(sg, 'pgYetiMaya')
                     if YetiList:
                         KeyValue += YetiList
 
-                    StandInsList =  GetShapesFromSG(sg, 'rs') ## ToDo get the correct type for rs standin
+                    StandInsList =  self.GetShapesFromSG(sg, 'rs') ## ToDo get the correct type for rs standin
                     if StandInsList:
                         KeyValue += StandInsList
 
