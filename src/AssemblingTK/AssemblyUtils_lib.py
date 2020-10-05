@@ -103,7 +103,7 @@ class AssemblyUtils():
 
                     MeshList =  self.GetShapesFromSG(sg, 'mesh')
                     if MeshList:
-                        KeyValue += meshList
+                        KeyValue += MeshList
                         
                     YetiList =  self.GetShapesFromSG(sg, 'pgYetiMaya')
                     if YetiList:
