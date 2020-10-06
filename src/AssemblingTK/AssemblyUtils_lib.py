@@ -5,23 +5,23 @@ class AssemblyUtils():
 
     def GetSelection(self):
         '''return a list of selected objets'''
-
         return pm.ls(selection = True)
+
     def GetAnimationFrameRange(self):
         """
         return a tupple of frame range from animation start and end poinfs from playback options
         """
         startFrame =  pm.playbackOptions(q=True, ast=True)
-        endFrame pm.playbackOptions(q=True, aet=True)
+        endFrame = pm.playbackOptions(q=True, aet=True)
 
         return (startFrame, endFrame)
 
-    def GetMinMaxFrameRange(self,):
+    def GetMinMaxFrameRange(self):
         """
             return a tupple from the frame range of max and min controls from the playback options
         """
         startFrame =  pm.playbackOptions(q=True, min=True)
-        endFrame pm.playbackOptions(q=True, max=True)
+        endFrame = pm.playbackOptions(q=True, max=True)
 
         return (startFrame, endFrame)
 
