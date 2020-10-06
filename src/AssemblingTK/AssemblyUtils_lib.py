@@ -7,6 +7,23 @@ class AssemblyUtils():
         '''return a list of selected objets'''
 
         return pm.ls(selection = True)
+    def GetAnimationFrameRange(self):
+        """
+        return a tupple of frame range from animation start and end poinfs from playback options
+        """
+        startFrame =  pm.playbackOptions(q=True, ast=True)
+        endFrame pm.playbackOptions(q=True, aet=True)
+
+        return (startFrame, endFrame)
+
+    def GetMinMaxFrameRange(self,):
+        """
+            return a tupple from the frame range of max and min controls from the playback options
+        """
+        startFrame =  pm.playbackOptions(q=True, min=True)
+        endFrame pm.playbackOptions(q=True, max=True)
+
+        return (startFrame, endFrame)
 
     def GetByType(self, InType):
         '''return '''
@@ -17,8 +34,6 @@ class AssemblyUtils():
 
         RootParent = pyItem.getAllParents()[-1]
     
-
-
     def ExportABC(self, startFrame , endFrame, ExportRootsString, outPath, additionalFlags=''):
         """
             build the JExport string containing all elements correctly formatted for the alembic export. 
@@ -55,6 +70,11 @@ class AssemblyUtils():
             abcFile = outPath + "/{0}.abc".format(AbcName)
             self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
 
+    def GetUserInput(self):
+        """
+        docstring
+        """
+        pass
     
     def MultipleAbcExport(self, RootsList, startFrame, endFrame, outPath, additionalFlags=None):
         """
@@ -126,3 +146,5 @@ class AssemblyUtils():
             if ShadingMap:
                 print ShadingMap
                 self.WriteJson(ShadingMap, MapPath,MapName)
+
+    
