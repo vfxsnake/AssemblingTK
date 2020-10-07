@@ -62,7 +62,7 @@ class Assembly_Controller(QWidget):
 
         SelectionList = self.mayaUtils.GetSelection()
         if SelectionList:
-            startFrame, endFrame =  self.mayaUtlis.GetMinMaxFrameRange()
+            startFrame, endFrame =  self.mayaUtils.GetMinMaxFrameRange()
 
             sourcePath = QFileDialog().getExistingDirectory(None, "Alembic Output Path", dir='D:\zebratv\Projects\BOLO')
             if not sourcePath:
@@ -84,7 +84,4 @@ class Assembly_Controller(QWidget):
         MessageBox.setWindowTitle(Message)
         MessageBox.exec_()
 
-
-# launch
-Controller = Assembly_Controller()
 
