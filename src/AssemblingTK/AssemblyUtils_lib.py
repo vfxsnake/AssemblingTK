@@ -70,11 +70,6 @@ class AssemblyUtils():
             abcFile = outPath + "/{0}.abc".format(AbcName)
             self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
 
-    def GetUserInput(self):
-        """
-        docstring
-        """
-        pass
     
     def MultipleAbcExport(self, RootsList, startFrame, endFrame, outPath, additionalFlags=None):
         """
@@ -107,7 +102,13 @@ class AssemblyUtils():
         with open(fileName, 'w+') as jsonFile:
             json.dump(InDic,jsonFile)
             print "WriteJson Done"
-        
+    
+    def LoadJson(self, jsonPath):
+        import json
+        with open(jsonPath) as f:
+            if f:
+                data = json.load(f)
+                return data
 
     def buildShaderAsignMap(self, MapPath, MapName):
         ''' 
@@ -147,4 +148,10 @@ class AssemblyUtils():
                 print ShadingMap
                 self.WriteJson(ShadingMap, MapPath,MapName)
 
-    
+    def ExportShadersOnly(self, OutPath, OutName):
+        pm.fileExport()
+   
+
+    def applyShaderMap(self, Map):
+        ShadingMap = self.LoadJson(Map) 
+

@@ -10,10 +10,10 @@ from PySide2.QtUiTools import QUiLoader
 
 class Assembly_Controller(QWidget):
     def __init__(self):
-        
-        self.mayaUtils = Utils.AssemblyUtils()
+    
+        super(Assembly_Controller, self).__init__()
 
-        super(ReferenceFinder, self).__init__()
+        self.mayaUtils = Utils.AssemblyUtils()
         self.setWindowTitle("Assembly tool set")
         self.setGeometry(300,300, 500,400)
         self.setMinimumHeight(100)
@@ -33,7 +33,7 @@ class Assembly_Controller(QWidget):
         
         '''connect Fucntions to widgets'''
         self.AbcExportSelectedSingle.clicked.connect(self.ExportSelectedSingle)
-        self.AbcExportSelectedMultiple.cliced.connect(self.ExportSelectedMultiple)
+        self.AbcExportSelectedMultiple.clicked.connect(self.ExportSelectedMultiple)
 
         ''' set layout to main window'''
         self.setLayout(self.VerticalLayout)
@@ -41,11 +41,11 @@ class Assembly_Controller(QWidget):
     def ExportSelectedSingle(self):
 
         SelectionList = self.mayaUtils.GetSelection()
-        if selectionList:
-            startFrame, endFrame =  self.mayaUtlis.GetMinMaxFrameRange()
+        if SelectionList:
+            startFrame, endFrame =  self.mayaUtils.GetMinMaxFrameRange()
 
-            sourcePath, x = QFileDialog().getExistingDirectory(None, "Alembic Output Path", dir='D:\zebratv\Projects\BOLO')
-            if not x:
+            sourcePath = QFileDialog().getExistingDirectory(None, "Alembic Output Path", dir='D:\zebratv\Projects\BOLO')
+            if not sourcePath:
                 self.MessageInfoBox(QMessageBox.Critical, "Info", "Action Canceled", "NO Path selected")
                 return 
                 
@@ -61,11 +61,11 @@ class Assembly_Controller(QWidget):
     def ExportSelectedMultiple(self):
 
         SelectionList = self.mayaUtils.GetSelection()
-        if selectionList:
+        if SelectionList:
             startFrame, endFrame =  self.mayaUtlis.GetMinMaxFrameRange()
 
-            sourcePath, x = QFileDialog().getExistingDirectory(None, "Alembic Output Path", dir='D:\zebratv\Projects\BOLO')
-            if not x:
+            sourcePath = QFileDialog().getExistingDirectory(None, "Alembic Output Path", dir='D:\zebratv\Projects\BOLO')
+            if not sourcePath:
                 self.MessageInfoBox(QMessageBox.Critical, "Info", "Action Canceled", "NO Path selected")
                 return 
 
