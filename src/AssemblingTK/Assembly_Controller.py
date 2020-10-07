@@ -10,6 +10,7 @@ from PySide2.QtUiTools import QUiLoader
 
 class Assembly_Controller(QWidget):
     def __init__(self):
+        print 'Initilazing Controller'
     
         super(Assembly_Controller, self).__init__()
 
@@ -39,7 +40,7 @@ class Assembly_Controller(QWidget):
         self.setLayout(self.VerticalLayout)
 
     def ExportSelectedSingle(self):
-
+        print "ExportSelectedSingle Pushed"
         SelectionList = self.mayaUtils.GetSelection()
         if SelectionList:
             startFrame, endFrame =  self.mayaUtils.GetMinMaxFrameRange()
@@ -59,7 +60,7 @@ class Assembly_Controller(QWidget):
             self.MessageInfoBox(QMessageBox.Information, 'Succed', 'Alembic exported correctly', 'Alembic exported to: {0}'.format(sourcePath))
 
     def ExportSelectedMultiple(self):
-
+        print ""
         SelectionList = self.mayaUtils.GetSelection()
         if SelectionList:
             startFrame, endFrame =  self.mayaUtils.GetMinMaxFrameRange()
@@ -80,7 +81,7 @@ class Assembly_Controller(QWidget):
         """
         MessageBox = QMessageBox()
         MessageBox.setIcon(Icon)
-        MessageBox.setInformativeText(infoText)
+        MessageBox.setInformativeText(InfoText)
         MessageBox.setWindowTitle(Message)
         MessageBox.exec_()
 
