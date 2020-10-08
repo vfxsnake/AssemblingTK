@@ -50,12 +50,12 @@ class AssemblyUtils():
         
         jExport = rangeFlag + customFlag + rootFlag + fileFlag
         
-        pm.AbcExport(j=jExport)
+        print pm.AbcExport(j=jExport)
 
     def BuildRootString(self, RootElement):
         return '-root {0} '.format(RootElement)
 
-    def SingleAbcExport(self, RootsList, startFrame, endFrame, outPath, AbcName, additionalFlags=None):
+    def SingleAbcExport(self, RootsList, startFrame, endFrame, outPath, AbcName, additionalFlags=''):
         """
             exports each element in root list as a single abc file 
             to the spesified path 
@@ -71,7 +71,7 @@ class AssemblyUtils():
             self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
 
     
-    def MultipleAbcExport(self, RootsList, startFrame, endFrame, outPath, additionalFlags=None):
+    def MultipleAbcExport(self, RootsList, startFrame, endFrame, outPath, additionalFlags=''):
         """
             exports each elemen of the root list as a separate abc
         """
@@ -79,6 +79,7 @@ class AssemblyUtils():
             rootString = self.BuildRootString(element)
             if rootString:
                 abcFile = outPath + "/{0}.abc".format(element)
+                print abcFile
                 self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
 
 
@@ -102,6 +103,8 @@ class AssemblyUtils():
         with open(fileName, 'w+') as jsonFile:
             json.dump(InDic,jsonFile)
             print "WriteJson Done"
+            print InDic
+            print fileName
     
     def LoadJson(self, jsonPath):
         import json
@@ -110,48 +113,86 @@ class AssemblyUtils():
                 data = json.load(f)
                 return data
 
-    def buildShaderAsignMap(self, MapPath, MapName):
+    def GetShadingEngineList(self):
+        sgs = pm.ls(type = 'shadingEngine')
+        sgList = []
+        if sgs:
+            for sg in sgs:
+                if 'initial' in sg.name():
+                    print 'initial found in name: ', sg
+                    continue
+                else:
+                    sgList.append(sg)
+        return sgList
+
+    def BuildShaderAsignMap(self, MapPath, MapName, SourceFile):
         ''' 
             Buids a dictionary and stores it in a json archive for future lookup.
         '''
-        sgs = pm.ls(type='shadingEngine')
+        sgs = self.GetShadingEngineList()
 
         if sgs:
             # creates the main Dictionary
-            ShadingMap = {}
+            ShadingMap = {'SourceFile':SourceFile}
             for sg in sgs:
 
-                ## ToDo create a dictionary of  shadin group and mesh list, pgyeti list, rs list
-                if 'initilalShading' in sg.name():
-                    continue
-                else:
-                    # creates a key with the Sg name, te value will be the list returned by GetShapeFromSG
+                KeyValue = []
 
-                    KeyValue = []
+                MeshList =  self.GetShapesFromSG(sg.name(), 'mesh')
+                if MeshList:
+                    KeyValue += MeshList
+                    
+                YetiList =  self.GetShapesFromSG(sg.name(), 'pgYetiMaya')
+                if YetiList:
+                    KeyValue += YetiList
 
-                    MeshList =  self.GetShapesFromSG(sg.name(), 'mesh')
-                    if MeshList:
-                        KeyValue += MeshList
-                        
-                    YetiList =  self.GetShapesFromSG(sg.name(), 'pgYetiMaya')
-                    if YetiList:
-                        KeyValue += YetiList
+                StandInsList =  self.GetShapesFromSG(sg.name(), 'rs') ## ToDo get the correct type for rs standin
+                if StandInsList:
+                    KeyValue += StandInsList
 
-                    StandInsList =  self.GetShapesFromSG(sg.name(), 'rs') ## ToDo get the correct type for rs standin
-                    if StandInsList:
-                        KeyValue += StandInsList
-
-                    if KeyValue:
-                        ShadingMap['{0}'.format(sg.name())] = KeyValue
+                if KeyValue:
+                    ShadingMap['{0}'.format(sg.name())] = KeyValue
             
             if ShadingMap:
                 print ShadingMap
-                self.WriteJson(ShadingMap, MapPath,MapName)
+                jmapName = '{0}.jmap'.format(MapName)
+                self.WriteJson(ShadingMap, MapPath,jmapName)
+               
 
     def ExportShadersOnly(self, OutPath, OutName):
-        pm.fileExport()
-   
+        print "Export Shader Only Called"
+        sgs = self.GetShadingEngineList()
+        print sgs
+        if sgs:
+            ''' select ne flag means no expand, preventing select meshes'''
+            pm.select(sgs, ne=True) 
+            print 'Selection Done : ', self.GetSelection()
+            ExportName = '{0}/{1}_SH.mb'.format(OutPath, OutName) 
+            outFile =  pm.exportSelected(ExportName, pr=True, typ='MayaBinary', f=True)
+            print 'Export Done: ', outFile
+            return outFile
+
+    def ImportFile(self, FileToImport):
+        pm.importFile(FileToImport, ignoreVersion=True, ra=True, mergeNamespacesOnClash=True, namespace = ":", 
+                        importFrameRate= False )
+        
+    def FindGeo(self, GeoName):
+        geo = pm.ls('*GeoName*'.format(GeoName))
+
+        if geo:
+            return geo
+        else:
+            return None
+    
+
 
     def applyShaderMap(self, Map):
-        ShadingMap = self.LoadJson(Map) 
+        ShadingMap = self.LoadJson(Map)
+        self.ImportFile(ShadingMap['SourceFile'])
+        for key in ShadingMap:
+            if not key == 'SourceFile':
+                geoList = ShadignMap[key]
+                for geo in geoList:
+                    print self.FindGeo(geo)
+    
 

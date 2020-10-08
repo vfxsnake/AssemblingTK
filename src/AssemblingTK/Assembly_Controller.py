@@ -50,13 +50,13 @@ class Assembly_Controller(QWidget):
                 self.MessageInfoBox(QMessageBox.Critical, "Info", "Action Canceled", "NO Path selected")
                 return 
                 
-            AbcName, ok = QInputDialog.getText(None, 'Alembic Name', "SetAlembicName", text='SQ000_SH0000_Step_v000.abc')
+            AbcName, ok = QInputDialog.getText(None, 'Alembic Name', "SetAlembicName", text='SQ000_SH0000_Step_v000')
             if not ok:
                 self.MessageInfoBox(QMessageBox.Critical, "Info", "Action Canceled", 'No Alembic name')
                 return 
 
         
-            self.mayaUtils.SingleAbcExport(SelectionList, startFrame, endFrame, sourcePath, AbcName, additionalFlags=None)
+            self.mayaUtils.SingleAbcExport(SelectionList, startFrame, endFrame, sourcePath, AbcName, )
             self.MessageInfoBox(QMessageBox.Information, 'Succed', 'Alembic exported correctly', 'Alembic exported to: {0}'.format(sourcePath))
 
     def ExportSelectedMultiple(self):
@@ -71,7 +71,7 @@ class Assembly_Controller(QWidget):
                 return 
 
 
-            self.mayaUtils.MultipleAbcExport(SelectionList, startFrame, endFrame, sourcePath, additionalFlags=None)
+            self.mayaUtils.MultipleAbcExport(SelectionList, startFrame, endFrame, sourcePath, )
             self.MessageInfoBox(QMessageBox.Information, 'Succed', 'Alembic exported correctly', 'Alembic exported to: {0}'.format(sourcePath))
     
     def MessageInfoBox(self, Icon, WindowTitle, InfoText, Message):
