@@ -59,14 +59,14 @@ def CreateGroupCharacters():
         else:
             envGrp = pm.group(empty=True, name='Characters')
             envGrp.useOutlinerColor.set(1)
-            envGrp.outlinerColor.set(0, 0, 1)
+            envGrp.outlinerColor.set(1, 0, 1)
             pm.inViewMessage(amg='<hl>Group Created!!</hl>.', pos='midCenter', fade=True)
 
         if envGrp:
             for item in selobj:
                 pm.parent(item, envGrp)
     else:
-        pm.inViewMessage(amg='<hl>Select_two_Grps!!</hl>.', pos='midCenter', fade=True)
+        pm.inViewMessage(amg='<hl>Select_Grps!!</hl>.', pos='midCenter', fade=True)
 
 def RenderLayerEnvironment():
 
@@ -107,7 +107,7 @@ def RenderLayerEnvironment():
     else:
         pm.inViewMessage(amg='<hl>Noting is Selected, Select GRP!!</hl>.', pos='midCenter', fade=True)
 
-def RenderLayerCharacter():
+def CharacterOne():
 
     rs = renderSetup.instance()
     selection = pm.ls(selection=True)
@@ -139,7 +139,7 @@ def RenderLayerCharacter():
             rs.switchToLayer(RsRenderLayer)
 
             ##Build Message Done
-            pm.inViewMessage(amg='<hl>Character_RL_Done!!</hl>.', pos='midCenter', fade=True)
+            pm.inViewMessage(amg='<hl>CharacterOne_RL_Done!!</hl>.', pos='midCenter', fade=True)
 
 
         else:
@@ -174,7 +174,7 @@ def Characters():
         rs.switchToLayer(RsRenderLayer)
 
         ##Build Message Done
-        pm.inViewMessage(amg='<hl>CrowdsOne_RL_Done!!</hl>.', pos='midCenter', fade=True)
+        pm.inViewMessage(amg='<hl>Characters_RL_Done!!</hl>.', pos='midCenter', fade=True)
 
     else:
         pm.select('Characters_RL')
@@ -265,8 +265,7 @@ def RenderLayerShadow():
         EnvOverride = ColectionAll.createOverride('EnvOverrideShadow', OpenMaya.MTypeId(0x58000387))#---->MaterialOverride
         EnvOverridePy=pm.PyNode("EnvOverrideShadow")
         ShaderEnvGrp= pm.sets(name= "Env_OverrideShadow_SG", empty=True, renderable=True, noSurfaceShader=True)
-        ShaderShadow=pm.shadingNode('aiShadowMatte', name= "Env_OverrideShadow_SH", asShader=True)
-        ShaderShadow.shadowColor.set(1,1,1,)
+        ShaderShadow=pm.shadingNode('RedshiftMatteShadowCatcher', name= "Env_OverrideShadow_SH", asShader=True)
 
         #Connect Shader to ShadingGroup
 
