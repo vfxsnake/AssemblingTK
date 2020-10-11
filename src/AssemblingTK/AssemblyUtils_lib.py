@@ -107,10 +107,12 @@ class AssemblyUtils():
             print fileName
     
     def LoadJson(self, jsonPath):
+        print 'Importing Json'
         import json
         with open(jsonPath) as f:
             if f:
                 data = json.load(f)
+                print 'jSon data is:', data
                 return data
 
     def GetShadingEngineList(self):
@@ -176,23 +178,63 @@ class AssemblyUtils():
         pm.importFile(FileToImport, ignoreVersion=True, ra=True, mergeNamespacesOnClash=True, namespace = ":", 
                         importFrameRate= False )
         
-    def FindGeo(self, GeoName):
-        geo = pm.ls('*GeoName*'.format(GeoName))
+    def FindSG(self, SG):
+        shadingGroup = pm.PyNode(SG)
+        if shadingGroup:
+            return shadingGroup
+        else:
+            return None 
 
-        if geo:
-            return geo
+    def FindGeo(self, GeoName, GeoList):
+        print 
+        found = []
+        for element in GeoList:
+            if '{0}'.format(GeoName) in element.name():
+                print "element found : {0}".format(element.name())
+                if not 'Orig' in element.name():
+                    found.append(element.name())
+        
+        if found:
+            return found
+
         else:
             return None
-    
 
+    def getAllShapes(self):
+        return pm.ls(type='shape')
 
-    def applyShaderMap(self, Map):
-        ShadingMap = self.LoadJson(Map)
-        self.ImportFile(ShadingMap['SourceFile'])
-        for key in ShadingMap:
-            if not key == 'SourceFile':
-                geoList = ShadignMap[key]
-                for geo in geoList:
-                    print self.FindGeo(geo)
-    
+    def FileExists(self, filePath):
+        import os
+        return os.path.exists(filePath)
 
+    def applyShaderMap(self, Map, importShader=True):
+        if self.FileExists(Map):
+            ShadingMap = self.LoadJson(Map)
+            print 'shading map : ', ShadingMap
+
+            if importShader:
+                self.ImportFile(ShadingMap['SourceFile'])
+            All = self.getAllShapes()
+
+            for key in ShadingMap:
+                if not key == 'SourceFile':
+                    shadingGroup = self.FindSG(key)
+                    if shadingGroup:
+                        geoList = ShadingMap[key]
+                        if geoList:
+                            print 'key is:' , key, 'data is: ', geoList
+                            for geo in geoList:
+                                geoFound = self.FindGeo(geo, All)
+                                if geoFound:
+                                    for item in geoFound: 
+                                        pm.sets(shadingGroup, e=True, forceElement=item)
+                                        print 'Shader Connected from {0} to {1}'.format(shadingGroup, geo)
+                                else:
+                                    print 'No maching Geo Found in scene : {0}'.format(geoList)
+                        else:
+                            print 'No Geo list found in {0}'.format(key)
+
+                    else:
+                        print 'no shading group found {0}'.format(key)
+        else:
+            return None
