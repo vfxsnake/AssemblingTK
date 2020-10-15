@@ -172,12 +172,26 @@ class AssemblyUtils():
             ExportName = '{0}/{1}_SH.mb'.format(OutPath, OutName) 
             outFile =  pm.exportSelected(ExportName, pr=True, typ='MayaBinary', f=True)
             print 'Export Done: ', outFile
+            pm.select(cl=True)
             return outFile
 
+    
+    def ExportShaderNjMaps(self, OutPath, OutName):
+        print "Out path and Out name is: ",OutPath, OutName
+        export = self.ExportShadersOnly(OutPath,OutName)
+        print export
+        self.BuildShaderAsignMap(OutPath, OutName, export)
+
+
     def ImportFile(self, FileToImport):
-        pm.importFile(FileToImport, ignoreVersion=True, ra=True, mergeNamespacesOnClash=True, namespace = ":", 
-                        importFrameRate= False )
-        
+        print "start Import File"
+        if self.FileExists(FileToImport):
+            pm.importFile(FileToImport, ignoreVersion=True, ra=True, mergeNamespacesOnClash=True, namespace = ":", 
+                        importFrameRate= False , f=True)
+        else:
+            print "the current file not exists: ", FileToImport
+
+
     def FindSG(self, SG):
         shadingGroup = pm.PyNode(SG)
         if shadingGroup:
@@ -208,14 +222,25 @@ class AssemblyUtils():
         return os.path.exists(filePath)
 
     def applyShaderMap(self, Map, importShader=True):
+        print "start ApplyShaderMap"
+        
         if self.FileExists(Map):
             ShadingMap = self.LoadJson(Map)
             print 'shading map : ', ShadingMap
 
             if importShader:
-                self.ImportFile(ShadingMap['SourceFile'])
+                print "applyShader Map before import"
+                if self.FileExists(ShadingMap['SourceFile']):
+                    self.ImportFile(ShadingMap['SourceFile'])
+                else:
+                    return None
+            
+            print "applyShader Map affter import"
+
+            print "applyShader Map before getAllShapes()"
             All = self.getAllShapes()
 
+            print "applyShader Map before i key loop"
             for key in ShadingMap:
                 if not key == 'SourceFile':
                     shadingGroup = self.FindSG(key)
