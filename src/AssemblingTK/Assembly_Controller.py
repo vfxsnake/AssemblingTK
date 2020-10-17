@@ -32,15 +32,20 @@ class Assembly_Controller(QWidget):
         self.VerticalLayout = QVBoxLayout()
         self.AbcExportSelectedSingle = QPushButton('Export Selected Single .abc')
         self.AbcExportSelectedMultiple = QPushButton('Export Selected Multiple .abc')
-
+        self.ExportShaders = QPushButton('Open Export Shader Window')
+        self.ImportShaders = QPushButton('Open Import Shader Window')
 
         ''' add widgets to layout'''
         self.VerticalLayout.addWidget(self.AbcExportSelectedSingle)
         self.VerticalLayout.addWidget(self.AbcExportSelectedMultiple)
+        self.VerticalLayout.addWidget(self.ExportShaders)
+        self.VerticalLayout.addWidget(self.ImportShaders)
         
         '''connect Fucntions to widgets'''
         self.AbcExportSelectedSingle.clicked.connect(self.ExportSelectedSingle)
         self.AbcExportSelectedMultiple.clicked.connect(self.ExportSelectedMultiple)
+        self.ExportShaders.clicked.connect(self.OpenShaderExportWidget)
+        self.ImportShaders.clicked.connect(self.OpenShaderMapTree)
 
         self.TreeWidget.AssignPushButton.clicked.connect(self.ApplyShadersToScene)
 
@@ -195,9 +200,19 @@ class Assembly_Controller(QWidget):
 
         AssetName = self.ExportWidget.AssetNameEdit.text()
         if AssetName:
-            self.mayaUtils.ExportShaderNjMaps(marcaName, AssetName)
+            AttrMap = self.mayaUtils.BuildAttrMap(marcaName,AssetName)
+            self.mayaUtils.ExportShaderNjMaps(marcaName, AssetName, AttrMap)
         else:
             print 'No name set to export'
+    
+    def OpenShaderExportWidget(self):
+        self.ExportWidget.show()
+
+    def OpenShaderMapTree(self):
+        jdata = self.BuidShaderMapDirectorys()
+        self.LoadjMapToShaderTree(jdata)
+        self.TreeWidget.show()
+
 
 class ShaderTreeView(QWidget):
     
@@ -216,7 +231,6 @@ class ShaderTreeView(QWidget):
         self.VerticalLayout.addWidget(self.AssignPushButton)
         self.setLayout(self.VerticalLayout)
         
-        # self.AssignPushButton.clicked.connect(self.GetSelectionFromTree)
 
     def GetSelectionFromTree(self):
         itemSelectionList = []
@@ -228,6 +242,7 @@ class ShaderTreeView(QWidget):
             return itemSelectionList
         else:
             return None
+    
 
 class ExportShader(QWidget):
     def __init__(self):

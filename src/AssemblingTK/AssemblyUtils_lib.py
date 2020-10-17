@@ -105,6 +105,7 @@ class AssemblyUtils():
             print "WriteJson Done"
             print InDic
             print fileName
+            return fileName
     
     def LoadJson(self, jsonPath):
         print 'Importing Json'
@@ -127,7 +128,7 @@ class AssemblyUtils():
                     sgList.append(sg)
         return sgList
 
-    def BuildShaderAsignMap(self, MapPath, MapName, SourceFile):
+    def BuildShaderAsignMap(self, MapPath, MapName, SourceFile, AttrMap):
         ''' 
             Buids a dictionary and stores it in a json archive for future lookup.
         '''
@@ -136,6 +137,7 @@ class AssemblyUtils():
         if sgs:
             # creates the main Dictionary
             ShadingMap = {'SourceFile':SourceFile}
+            ShadingMap['AttrMap'] = AttrMap
             for sg in sgs:
 
                 KeyValue = []
@@ -159,6 +161,7 @@ class AssemblyUtils():
                 print ShadingMap
                 jmapName = '{0}.jmap'.format(MapName)
                 self.WriteJson(ShadingMap, MapPath,jmapName)
+
                
 
     def ExportShadersOnly(self, OutPath, OutName):
@@ -176,11 +179,11 @@ class AssemblyUtils():
             return outFile
 
     
-    def ExportShaderNjMaps(self, OutPath, OutName):
+    def ExportShaderNjMaps(self, OutPath, OutName, AttrMap):
         print "Out path and Out name is: ",OutPath, OutName
         export = self.ExportShadersOnly(OutPath,OutName)
         print export
-        self.BuildShaderAsignMap(OutPath, OutName, export)
+        self.BuildShaderAsignMap(OutPath, OutName, export, AttrMap)
 
 
     def ImportFile(self, FileToImport):
@@ -214,12 +217,80 @@ class AssemblyUtils():
         else:
             return None
 
+    def GetSubdivAttr(self, ShapeNode):
+        if pm.objExists(ShapeNode):
+            subdivition = ShapeNode.rsEnableSubdivision.get()
+            maxSubdiv = ShapeNode.rsMaxTessellationSubdivs.get()
+            
+            if subdivition:
+                attrDict = {'ShapeName' : ShapeNode.name(), 
+                            'subdivition' : subdivition,
+                            'maxSubdiv' : maxSubdiv}
+                print attrDict
+
+                return attrDict
+            else:
+                return None
+        else:
+            return None
+    
+
+        
+    def BuildAttrMap(self, AttrFilePath, AttrFileName):
+        AllMesh = pm.ls(type='mesh')
+        if AllMesh:
+            directoryList = []
+            for element in AllMesh:
+                AttrDict = self.GetSubdivAttr(element)
+                if AttrDict:
+                    directoryList.append(AttrDict)
+            
+            if directoryList:
+                AttrjMapName = '{0}.jAttr'.format(AttrFileName)
+                outFile = self.WriteJson(directoryList,  AttrFilePath, AttrjMapName)
+                if outFile:
+                    return outFile
+            else:
+                return None
+        else:
+            return None
+        
     def getAllShapes(self):
         return pm.ls(type='shape')
 
     def FileExists(self, filePath):
         import os
         return os.path.exists(filePath)
+    
+    def applyAttrMap(self, attrMap, ElementsList):
+        if attrMap:
+            data = self.LoadJson(attrMap)
+            if data:
+                for element in data:
+                    meshes = self.FindGeo(element['ShapeName'], ElementsList)
+                    if meshes:
+                        for mesh in meshes:
+                            currentMesh = pm.PyNode(mesh)
+                            try:
+
+                                print "settign Attr to: ", currentMesh
+                                print 'susubdivition: ' , element['subdivition']
+                                if  element['subdivition']:
+                                    currentMesh.rsEnableSubdivision.set(1)
+
+                            except:
+                                print 'Unable to set subdivition to : ', mesh
+                            
+                            try:
+                                print "settign Attr to: ", mesh
+                                print 'maxSubdiv: ' , element['maxSubdiv']
+                                currentMesh.rsMaxTessellationSubdivs.set(element['maxSubdiv'])
+                            except:
+                                print 'Unable to set max subdivition: ', mesh
+            else:
+                print "No data to Load AttrMap"
+        else:
+            print 'No AttrMap'
 
     def applyShaderMap(self, Map, importShader=True):
         print "start ApplyShaderMap"
@@ -242,7 +313,7 @@ class AssemblyUtils():
 
             print "applyShader Map before i key loop"
             for key in ShadingMap:
-                if not key == 'SourceFile':
+                if not (key == 'SourceFile' or key == 'AttrMap'):
                     shadingGroup = self.FindSG(key)
                     if shadingGroup:
                         geoList = ShadingMap[key]
@@ -261,5 +332,7 @@ class AssemblyUtils():
 
                     else:
                         print 'no shading group found {0}'.format(key)
+            
+            self.applyAttrMap(ShadingMap['AttrMap'], All)
         else:
             return None
