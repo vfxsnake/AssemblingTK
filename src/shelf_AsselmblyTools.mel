@@ -33,7 +33,7 @@ global proc shelf_AsselmblyTools () {
         -style "iconOnly" 
         -marginWidth 1
         -marginHeight 1
-        -command "import sys\nfrom PySide2.QtCore import *\nfrom PySide2.QtGui import *\nfrom PySide2.QtWidgets import *\nif not \"D:\\zebratv\\Projects\\BOLO\\software\\AssemblingTK\\src\\AssemblingTK\" in sys.path:\n    sys.path.append('D:\\zebratv\\Projects\\BOLO\\software\\AssemblingTK\\src\\AssemblingTK')\n\nimport Assembly_Controller\nreload(Assembly_Controller)\n\nprint QFileDialog().getExistingDirectory(None, \"Alembic Output Path\", dir='D:\\zebratv\\Projects\\BOLO')\n\nController = Assembly_Controller.Assembly_Controller()\nController.show()\n" 
+        -command "if not \"D:\\zebratv\\Projects\\BOLO\\software\\AssemblingTK\\src\\AssemblingTK\" in sys.path:\n    sys.path.append('D:\\zebratv\\Projects\\BOLO\\software\\AssemblingTK\\src\\AssemblingTK')\n\nimport Assembly_Controller\nreload(Assembly_Controller)\n\n\nController = Assembly_Controller.Assembly_Controller()\nController.show()\n" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
