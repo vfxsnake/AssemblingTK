@@ -69,8 +69,7 @@ class AssemblyUtils():
             print rootString
             abcFile = outPath + "/{0}.abc".format(AbcName)
             self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
-
-    
+  
     def MultipleAbcExport(self, RootsList, startFrame, endFrame, outPath, additionalFlags=''):
         """
             exports each elemen of the root list as a separate abc
@@ -81,7 +80,6 @@ class AssemblyUtils():
                 abcFile = outPath + "/{0}.abc".format(element)
                 print abcFile
                 self.ExportABC(startFrame, endFrame, rootString, abcFile, additionalFlags)
-
 
     def GetShapesFromSG(self, ShadingGroupName, ShapeType='mesh'):
         """
@@ -161,9 +159,7 @@ class AssemblyUtils():
                 print ShadingMap
                 jmapName = '{0}.jmap'.format(MapName)
                 self.WriteJson(ShadingMap, MapPath,jmapName)
-
-               
-
+         
     def ExportShadersOnly(self, OutPath, OutName):
         print "Export Shader Only Called"
         sgs = self.GetShadingEngineList()
@@ -177,14 +173,12 @@ class AssemblyUtils():
             print 'Export Done: ', outFile
             pm.select(cl=True)
             return outFile
-
-    
+  
     def ExportShaderNjMaps(self, OutPath, OutName, AttrMap):
         print "Out path and Out name is: ",OutPath, OutName
         export = self.ExportShadersOnly(OutPath,OutName)
         print export
         self.BuildShaderAsignMap(OutPath, OutName, export, AttrMap)
-
 
     def ImportFile(self, FileToImport):
         print "start Import File"
@@ -193,7 +187,6 @@ class AssemblyUtils():
                         importFrameRate= False , f=True)
         else:
             print "the current file not exists: ", FileToImport
-
 
     def FindSG(self, SG):
         shadingGroup = pm.PyNode(SG)
@@ -221,11 +214,12 @@ class AssemblyUtils():
         if pm.objExists(ShapeNode):
             subdivition = ShapeNode.rsEnableSubdivision.get()
             maxSubdiv = ShapeNode.rsMaxTessellationSubdivs.get()
-            
+            castShadow = ShapeNode.castsShadows.get()
             if subdivition:
                 attrDict = {'ShapeName' : ShapeNode.name(), 
                             'subdivition' : subdivition,
-                            'maxSubdiv' : maxSubdiv}
+                            'maxSubdiv' : maxSubdiv,
+                            'castShadow':castShadow}
                 print attrDict
 
                 return attrDict
@@ -233,9 +227,7 @@ class AssemblyUtils():
                 return None
         else:
             return None
-    
 
-        
     def BuildAttrMap(self, AttrFilePath, AttrFileName):
         AllMesh = pm.ls(type='mesh')
         if AllMesh:
@@ -287,6 +279,12 @@ class AssemblyUtils():
                                 currentMesh.rsMaxTessellationSubdivs.set(element['maxSubdiv'])
                             except:
                                 print 'Unable to set max subdivition: ', mesh
+                            
+                            try:
+                                currentMesh.castsShadows.set(element['castShadow'])
+                            except:
+                                print 'no cast shadow attr'
+
             else:
                 print "No data to Load AttrMap"
         else:
@@ -334,5 +332,41 @@ class AssemblyUtils():
                         print 'no shading group found {0}'.format(key)
             
             self.applyAttrMap(ShadingMap['AttrMap'], All)
+        else:
+            return None
+
+    def ExportZafariToABC(self, OutPath):
+        '''
+            export one by one group to singel abc for furder import in assembly
+
+        '''
+        animationRange = self.GetAnimationFrameRange()
+        ExportList = self.GetZafariExportGeo()
+        if ExportList:
+            for element in ExportList:
+                abcName = '{0}/{1}.abc'.format(OutPath, element[1])
+                rootString = self.BuildRootString(element[0])
+                print 'Zafari Export abc name  : ', abcName, element[0]
+                self.ExportABC(animationRange[0] , animationRange[1], rootString, abcName, additionalFlags='')
+                print 'Export Done'
+        else:
+            print 'ExportZafari To ABC no element to export'
+
+    def GetZafariExportGeo(self):
+        ''' get export geo Group from selection '''
+        ExportList = []
+        allTransform = pm.ls(type = 'transform') 
+
+        for element in allTransform:
+            if '__X__ExportRes__Grp__' in element.name():
+                mainGroupName =  element.getAllParents()[-1].name()
+                splitName  = mainGroupName.split(':')
+                if len(splitName) > 1:
+                    mainGroupName = '_'.join(splitName)
+                ExportList.append([element.name(), mainGroupName])
+
+        if ExportList:
+            return ExportList            
+        
         else:
             return None

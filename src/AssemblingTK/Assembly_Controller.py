@@ -32,18 +32,21 @@ class Assembly_Controller(QWidget):
         self.VerticalLayout = QVBoxLayout()
         self.AbcExportSelectedSingle = QPushButton('Export Selected Single .abc')
         self.AbcExportSelectedMultiple = QPushButton('Export Selected Multiple .abc')
+        self.AbcExportZafariMultiple = QPushButton('Export Zafari Multiple .abc')
         self.ExportShaders = QPushButton('Open Export Shader Window')
         self.ImportShaders = QPushButton('Open Import Shader Window')
 
         ''' add widgets to layout'''
         self.VerticalLayout.addWidget(self.AbcExportSelectedSingle)
         self.VerticalLayout.addWidget(self.AbcExportSelectedMultiple)
+        self.VerticalLayout.addWidget(self.AbcExportZafariMultiple)
         self.VerticalLayout.addWidget(self.ExportShaders)
         self.VerticalLayout.addWidget(self.ImportShaders)
         
         '''connect Fucntions to widgets'''
         self.AbcExportSelectedSingle.clicked.connect(self.ExportSelectedSingle)
         self.AbcExportSelectedMultiple.clicked.connect(self.ExportSelectedMultiple)
+        self.AbcExportZafariMultiple.clicked.connect(self.ExportZafariMultiple)
         self.ExportShaders.clicked.connect(self.OpenShaderExportWidget)
         self.ImportShaders.clicked.connect(self.OpenShaderMapTree)
 
@@ -89,6 +92,14 @@ class Assembly_Controller(QWidget):
             self.mayaUtils.MultipleAbcExport(SelectionList, startFrame, endFrame, sourcePath, )
             self.MessageInfoBox(QMessageBox.Information, 'Succed', 'Alembic exported correctly', 'Alembic exported to: {0}'.format(sourcePath))
     
+    def ExportZafariMultiple(self):
+        sourcePath = QFileDialog().getExistingDirectory(None, "Alembic Output Path", dir='D:\zebratv\Projects\BOLO')
+        if not sourcePath:
+            self.MessageInfoBox(QMessageBox.Critical, "Info", "Action Canceled", "NO Path selected")
+            return
+        self.mayaUtils.ExportZafariToABC(sourcePath)
+        self.MessageInfoBox(QMessageBox.Information, 'Export Zafari Multiple', 'Export Completed', 'Export Succeded')
+
     def MessageInfoBox(self, Icon, WindowTitle, InfoText, Message):
         """
             displays a message box with the disired information, 
@@ -192,7 +203,9 @@ class Assembly_Controller(QWidget):
         data = self.TreeWidget.GetSelectionFromTree()
         if data:
             for element in data:
-                self.mayaUtils.applyShaderMap(element, True)     
+                self.mayaUtils.applyShaderMap(element, True)
+            
+            self.MessageInfoBox(QMessageBox.Information, 'Succed', 'shaders applied', 'shaders applied')
 
     def ExportShaderNjMap(self):
         marca  = self.ExportWidget.Marca.currentText()
@@ -202,6 +215,7 @@ class Assembly_Controller(QWidget):
         if AssetName:
             AttrMap = self.mayaUtils.BuildAttrMap(marcaName,AssetName)
             self.mayaUtils.ExportShaderNjMaps(marcaName, AssetName, AttrMap)
+            self.MessageInfoBox(QMessageBox.Information, 'Succed', 'Shaders exported correctly', 'shader and jmaps correcly export')
         else:
             print 'No name set to export'
     
