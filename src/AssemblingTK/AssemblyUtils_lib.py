@@ -234,7 +234,9 @@ class AssemblyUtils():
         if AllMesh:
             directoryList = []
             for element in AllMesh:
+                print 'current Element: ', element.name()
                 AttrDict = self.GetSubdivAttr(element)
+                print "current Element Attrs: ", AttrDict
                 if AttrDict:
                     directoryList.append(AttrDict)
             
@@ -400,13 +402,45 @@ class AssemblyUtils():
         else:
             return None
 
+    def CreateSelectionListFromString(self, SelectionString, objectName):
+        if SelectionString:
+            headlessString = SelectionString.replace('f[', '')
+            taillessString = headlessString.replace(']', '')
+            
+            OutSelectionList = []
+            rangeList = taillessString.split(',')
+            for element in rangeList:
+                if len(element.split(':')) < 3:
+                    print 'split data Range: ',element.split(':')
+                    OutSelectionList.append('{0}.f[{1}]'.format(objectName, element))
+                else:
+                    data = element.split(':')
+                    print 'split data range:', data
+                    for x in range(int(data[0]), int(data[1]) + 1, int(data[2])):
+                        OutSelectionList.append('{0}.f[{1}]'.format(objectName, x))
+
+            if OutSelectionList:
+                print OutSelectionList
+                return OutSelectionList
+            else:
+                return None
+
     def BuildSelectionSets(self, SetMap, All):
+        
         if SetMap:
             setDirectory = self.LoadJson(SetMap)
             for element in setDirectory:
-                currentMesh = setDirectory[element].split('.')[0]
+                currentMesh = setDirectory[element].split('.')
                 # print 'setName: ', element
                 # print 'CurrentMesh is: ',currentMesh
-                GeoList = self.FindGeo(currentMesh, All)
+                GeoList = self.FindGeo(currentMesh[0], All)
+                if GeoList:
+                    for item in GeoList:
+              
+                        SelectionList = self.CreateSelectionListFromString(currentMesh[1], item)
+                        if SelectionList:
+                            pm.select(SelectionList)
+                            pm.sets()
+                                        
         else:
             print 'no selection set to create'
