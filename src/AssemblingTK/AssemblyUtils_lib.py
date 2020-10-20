@@ -126,7 +126,7 @@ class AssemblyUtils():
                     sgList.append(sg)
         return sgList
 
-    def BuildShaderAsignMap(self, MapPath, MapName, SourceFile, AttrMap):
+    def BuildShaderAsignMap(self, MapPath, MapName, SourceFile, AttrMap, setMap):
         ''' 
             Buids a dictionary and stores it in a json archive for future lookup.
         '''
@@ -136,6 +136,7 @@ class AssemblyUtils():
             # creates the main Dictionary
             ShadingMap = {'SourceFile':SourceFile}
             ShadingMap['AttrMap'] = AttrMap
+            ShadingMap['setMap'] = setMap
             for sg in sgs:
 
                 KeyValue = []
@@ -196,7 +197,6 @@ class AssemblyUtils():
             return None 
 
     def FindGeo(self, GeoName, GeoList):
-        print 
         found = []
         for element in GeoList:
             if '{0}'.format(GeoName) in element.name():
@@ -208,6 +208,7 @@ class AssemblyUtils():
             return found
 
         else:
+            print 'Not Found: ', GeoName
             return None
 
     def GetSubdivAttr(self, ShapeNode):
@@ -311,7 +312,7 @@ class AssemblyUtils():
 
             print "applyShader Map before i key loop"
             for key in ShadingMap:
-                if not (key == 'SourceFile' or key == 'AttrMap'):
+                if not (key == 'SourceFile' or key == 'AttrMap' or key == 'setMap'):
                     shadingGroup = self.FindSG(key)
                     if shadingGroup:
                         geoList = ShadingMap[key]
@@ -353,6 +354,10 @@ class AssemblyUtils():
             print 'ExportZafari To ABC no element to export'
 
     def GetZafariExportGeo(self):
+
+
+
+
         ''' get export geo Group from selection '''
         ExportList = []
         allTransform = pm.ls(type = 'transform') 
@@ -370,3 +375,34 @@ class AssemblyUtils():
         
         else:
             return None
+
+    def StoreSelectionSets(self, StorePath, StoreName):
+        setDictionary = {}
+        objectSet =  pm.ls(type='objectSet')
+        for element in objectSet:
+            if element.nodeType() == 'shadingEngine':
+                #print 'is shading group', element.name()
+                continue
+            
+            if 'default' in element.name():
+                #print  'is default set', element.name()
+                continue
+            
+            print 'this is an ObjetSet: ', element.name()
+            memberList =  str( element.members(True)[0] )
+            setDictionary['{0}'.format(element.name())] = memberList
+
+        if setDictionary:
+            mapName = '{0}.setMap'.format(StoreName)
+            self.WriteJson(setDictionary,StorePath,mapName)
+
+    def BuildSelectionSets(self, SetMap):
+        if SetMap:
+            All = pm.ls(type='mesh')
+            setDirectory = self.LoadJson(SetMap)
+            for element in setDirectory:
+                currentMesh = setDirectory[element].split('.')[0]
+                # print 'setName: ', element
+                # print 'CurrentMesh is: ',currentMesh
+                GeoList = self.FindGeo(currentMesh, All)
+                print GeoList
