@@ -216,16 +216,15 @@ class AssemblyUtils():
             subdivition = ShapeNode.rsEnableSubdivision.get()
             maxSubdiv = ShapeNode.rsMaxTessellationSubdivs.get()
             castShadow = ShapeNode.castsShadows.get()
-            if subdivition:
-                attrDict = {'ShapeName' : ShapeNode.name(), 
-                            'subdivition' : subdivition,
-                            'maxSubdiv' : maxSubdiv,
-                            'castShadow':castShadow}
-                print attrDict
+            
+            attrDict = {'ShapeName' : ShapeNode.name(), 
+                        'subdivition' : subdivition,
+                        'maxSubdiv' : maxSubdiv,
+                        'castShadow':castShadow}
+            print attrDict
 
-                return attrDict
-            else:
-                return None
+            return attrDict
+            
         else:
             return None
 
