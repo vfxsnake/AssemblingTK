@@ -214,7 +214,8 @@ class Assembly_Controller(QWidget):
         AssetName = self.ExportWidget.AssetNameEdit.text()
         if AssetName:
             AttrMap = self.mayaUtils.BuildAttrMap(marcaName,AssetName)
-            self.mayaUtils.ExportShaderNjMaps(marcaName, AssetName, AttrMap)
+            SetsMap = self.mayaUtils.StoreSelectionSets(marcaName, AssetName)
+            self.mayaUtils.ExportShaderNjMaps(marcaName, AssetName, AttrMap, SetsMap)
             self.MessageInfoBox(QMessageBox.Information, 'Succed', 'Shaders exported correctly', 'shader and jmaps correcly export')
         else:
             print 'No name set to export'

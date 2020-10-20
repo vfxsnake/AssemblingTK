@@ -175,11 +175,11 @@ class AssemblyUtils():
             pm.select(cl=True)
             return outFile
   
-    def ExportShaderNjMaps(self, OutPath, OutName, AttrMap):
+    def ExportShaderNjMaps(self, OutPath, OutName, AttrMap, setMap):
         print "Out path and Out name is: ",OutPath, OutName
         export = self.ExportShadersOnly(OutPath,OutName)
         print export
-        self.BuildShaderAsignMap(OutPath, OutName, export, AttrMap)
+        self.BuildShaderAsignMap(OutPath, OutName, export, AttrMap, setMap)
 
     def ImportFile(self, FileToImport):
         print "start Import File"
@@ -333,6 +333,7 @@ class AssemblyUtils():
                         print 'no shading group found {0}'.format(key)
             
             self.applyAttrMap(ShadingMap['AttrMap'], All)
+            self.BuildSelectionSets(ShadingMap['AttrMap'], All)
         else:
             return None
 
@@ -395,14 +396,17 @@ class AssemblyUtils():
         if setDictionary:
             mapName = '{0}.setMap'.format(StoreName)
             self.WriteJson(setDictionary,StorePath,mapName)
+            return '{0}/{1}'.format(StorePath,mapName)
+        else:
+            return None
 
-    def BuildSelectionSets(self, SetMap):
+    def BuildSelectionSets(self, SetMap, All):
         if SetMap:
-            All = pm.ls(type='mesh')
             setDirectory = self.LoadJson(SetMap)
             for element in setDirectory:
                 currentMesh = setDirectory[element].split('.')[0]
                 # print 'setName: ', element
                 # print 'CurrentMesh is: ',currentMesh
                 GeoList = self.FindGeo(currentMesh, All)
-                print GeoList
+        else:
+            print 'no selection set to create'
