@@ -334,7 +334,7 @@ class AssemblyUtils():
                         print 'no shading group found {0}'.format(key)
             
             self.applyAttrMap(ShadingMap['AttrMap'], All)
-            self.BuildSelectionSets(ShadingMap['AttrMap'], All)
+            # self.BuildSelectionSets(ShadingMap['AttrMap'], All)
         else:
             return None
 
@@ -439,7 +439,8 @@ class AssemblyUtils():
                         SelectionList = self.CreateSelectionListFromString(currentMesh[1], item)
                         if SelectionList:
                             pm.select(SelectionList)
-                            pm.sets()
+                            pm.sets(name=element)
+                            pm.select(clear=True)
                                         
         else:
             print 'no selection set to create'
