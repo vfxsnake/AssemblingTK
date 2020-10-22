@@ -6,8 +6,6 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-
-
 class Assembly_Controller(QWidget):
     def __init__(self):
         print 'Initilazing Controller'
@@ -215,7 +213,8 @@ class Assembly_Controller(QWidget):
         if AssetName:
             AttrMap = self.mayaUtils.BuildAttrMap(marcaName,AssetName)
             SetsMap = self.mayaUtils.StoreSelectionSets(marcaName, AssetName)
-            self.mayaUtils.ExportShaderNjMaps(marcaName, AssetName, AttrMap, SetsMap)
+            ChooserMap = self.mayaUtils.ExportUvChoosersMap(marcaName, AssetName)
+            self.mayaUtils.ExportShaderNjMaps(marcaName, AssetName, AttrMap, SetsMap, ChooserMap)
             self.MessageInfoBox(QMessageBox.Information, 'Succed', 'Shaders exported correctly', 'shader and jmaps correcly export')
         else:
             print 'No name set to export'

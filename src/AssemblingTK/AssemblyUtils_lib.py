@@ -126,7 +126,7 @@ class AssemblyUtils():
                     sgList.append(sg)
         return sgList
 
-    def BuildShaderAsignMap(self, MapPath, MapName, SourceFile, AttrMap, setMap):
+    def BuildShaderAsignMap(self, MapPath, MapName, SourceFile, AttrMap, setMap, chooserMap):
         ''' 
             Buids a dictionary and stores it in a json archive for future lookup.
         '''
@@ -137,6 +137,7 @@ class AssemblyUtils():
             ShadingMap = {'SourceFile':SourceFile}
             ShadingMap['AttrMap'] = AttrMap
             ShadingMap['setMap'] = setMap
+            ShadingMap['chooserMap'] = chooserMap
             for sg in sgs:
 
                 KeyValue = []
@@ -175,11 +176,11 @@ class AssemblyUtils():
             pm.select(cl=True)
             return outFile
   
-    def ExportShaderNjMaps(self, OutPath, OutName, AttrMap, setMap):
+    def ExportShaderNjMaps(self, OutPath, OutName, AttrMap, setMap, chooserMap):
         print "Out path and Out name is: ",OutPath, OutName
         export = self.ExportShadersOnly(OutPath,OutName)
         print export
-        self.BuildShaderAsignMap(OutPath, OutName, export, AttrMap, setMap)
+        self.BuildShaderAsignMap(OutPath, OutName, export, AttrMap, setMap, chooserMap)
 
     def ImportFile(self, FileToImport):
         print "start Import File"
@@ -313,7 +314,7 @@ class AssemblyUtils():
 
             print "applyShader Map before i key loop"
             for key in ShadingMap:
-                if not (key == 'SourceFile' or key == 'AttrMap' or key == 'setMap'):
+                if not (key == 'SourceFile' or key == 'AttrMap' or key == 'setMap' or key == 'chooserMap'):
                     shadingGroup = self.FindSG(key)
                     if shadingGroup:
                         geoList = ShadingMap[key]
@@ -334,7 +335,19 @@ class AssemblyUtils():
                         print 'no shading group found {0}'.format(key)
             
             self.applyAttrMap(ShadingMap['AttrMap'], All)
-            # self.BuildSelectionSets(ShadingMap['AttrMap'], All)
+
+            try:        
+                self.BuildSelectionSets(ShadingMap['setMap'], All)
+                self.ConnectShaderToFaces()
+            except:
+                print 'No SelectionSets in map'
+
+            try:
+                self.BuildUvChoosers(ShadingMap['chooserMap'], All)
+                self.ConnectShaderToFaces()
+            except:
+                print 'No chooserMap in map'
+
         else:
             return None
 
@@ -377,6 +390,22 @@ class AssemblyUtils():
         
         else:
             return None
+
+    def GetSelectionSets(self):
+        selectionSetList = []
+        objectSet =  pm.ls(type='objectSet')
+        for element in objectSet:
+            if element.nodeType() == 'shadingEngine':
+                #print 'is shading group', element.name()
+                continue
+            
+            if 'default' in element.name():
+                #print  'is default set', element.name()
+                continue
+            
+            selectionSetList.append(element)
+        if selectionSetList:
+            return selectionSetList
 
     def StoreSelectionSets(self, StorePath, StoreName):
         setDictionary = {}
@@ -425,10 +454,11 @@ class AssemblyUtils():
                 return None
 
     def BuildSelectionSets(self, SetMap, All):
-        
+        print SetMap
         if SetMap:
             setDirectory = self.LoadJson(SetMap)
             for element in setDirectory:
+                print 'currentMesh: ********', setDirectory
                 currentMesh = setDirectory[element].split('.')
                 # print 'setName: ', element
                 # print 'CurrentMesh is: ',currentMesh
@@ -444,3 +474,79 @@ class AssemblyUtils():
                                         
         else:
             print 'no selection set to create'
+
+    def ConnectShaderToFaces(self):
+        pm.select(clear=True)
+        sets = self.GetSelectionSets()
+
+        for element in sets:
+            pm.select(element)
+            name = element.name().split('__')[-1]
+            print name
+            
+            pm.sets(name, e=True, forceElement=True)
+            
+            pm.select(clear=True)
+
+    def ExportUvChoosersMap(self, jsonPath,jsonName):
+        
+        
+        UvChoosers  = pm.ls(type='uvChooser')
+        if UvChoosers:
+            UvChooserMap = {}
+            for element in UvChoosers:
+                place2dCon = []
+                meshCon = None
+
+                connection =  pm.listConnections(element.name(), s=True, p=True, c=True, type='place2dTexture', et=True)
+                for item in connection:
+                    print 'item in Conection: 0', item[0]
+                    print 'item in Conection: 1', item[1]
+                    attrTupple = (str(item[0]), str(item[1]))
+                    place2dCon.append(attrTupple)
+                
+                meshConList = pm.listConnections(element.name(), s=True, p=True, c=True, type='mesh')
+                meshCon = []
+                for itemMesh in meshConList:
+                    meshTupple = ( str(itemMesh[0]), str(itemMesh[1]) )
+                    meshCon.append(meshTupple)
+
+                UvChooserMap['{0}'.format(element.name())] = {'place2dCon':place2dCon, 'meshCon': meshCon}
+            
+            print UvChooserMap
+            if UvChooserMap:
+                UvChooserName = '{0}.chooMap'.format(jsonName)
+                fileName = self.WriteJson(UvChooserMap, jsonPath, UvChooserName)
+                return fileName
+            else:
+                return None
+
+    def BuildUvChoosers(self, UvChooserMap, All): 
+        if UvChooserMap:
+            UvChooser = self.LoadJson(UvChooserMap)
+            print UvChooser
+            for element in UvChooser:
+                
+                print "build Uv Chooser key is: " , element
+                AttrPlace2dConnection =  UvChooser[element]['place2dCon']
+                AttrMeshCon =  UvChooser[element]['meshCon']
+                newUvChooser = pm.createNode('uvChooser', name=element)
+                for con in AttrPlace2dConnection:
+                    print 'place Conection for elemen is', con
+                    pm.connectAttr(con[0], con[1], f=True)
+                    print 'Connection Done: ', con
+                for x in AttrMeshCon:
+                    print 'geo connection is: ', x
+                    GeoName = x[1].split('.')[0]
+                    attr = x[1].split('.')[1]
+                    if GeoName:
+                        CurrentMesh = self.FindGeo(GeoName, All)
+                        if CurrentMesh:
+                            if len(CurrentMesh) > 1:
+                                print "more tha one object match found using first"
+                            AttrConnect = '{0}.{1}.uvSetName'.format(CurrentMesh[0], attr)
+                            print "mesh connection attr is:" , AttrConnect
+                            pm.connectAttr(AttrConnect, x[0])
+
+        print 'Uvchossers succes'
+            
