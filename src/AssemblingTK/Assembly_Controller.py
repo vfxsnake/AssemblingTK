@@ -31,20 +31,38 @@ class Assembly_Controller(QWidget):
         self.AbcExportSelectedSingle = QPushButton('Export Selected Single .abc')
         self.AbcExportSelectedMultiple = QPushButton('Export Selected Multiple .abc')
         self.AbcExportZafariMultiple = QPushButton('Export Zafari Multiple .abc')
+        
+        self.AbcImportZafari = QPushButton('Import Zafari Abc to scene')
+        
         self.ExportShaders = QPushButton('Open Export Shader Window')
         self.ImportShaders = QPushButton('Open Import Shader Window')
+
+        self.BuildUvChoosers = QPushButton('Build Uv Choosers')
+        self.ApplayShadersToSelectionSets = QPushButton('Connect shaders to selection Sets')
 
         ''' add widgets to layout'''
         self.VerticalLayout.addWidget(self.AbcExportSelectedSingle)
         self.VerticalLayout.addWidget(self.AbcExportSelectedMultiple)
         self.VerticalLayout.addWidget(self.AbcExportZafariMultiple)
+
+        self.VerticalLayout.addWidget(self.AbcImportZafari)
+
         self.VerticalLayout.addWidget(self.ExportShaders)
         self.VerticalLayout.addWidget(self.ImportShaders)
+        self.VerticalLayout.addWidget(self.ImportShaders)
+        self.VerticalLayout.addWidget(self.ImportShaders)
+
+
+
+
         
         '''connect Fucntions to widgets'''
         self.AbcExportSelectedSingle.clicked.connect(self.ExportSelectedSingle)
         self.AbcExportSelectedMultiple.clicked.connect(self.ExportSelectedMultiple)
         self.AbcExportZafariMultiple.clicked.connect(self.ExportZafariMultiple)
+
+        self.AbcImportZafari.clicked.connect(self.ImportZafariABC)
+
         self.ExportShaders.clicked.connect(self.OpenShaderExportWidget)
         self.ImportShaders.clicked.connect(self.OpenShaderMapTree)
 
@@ -226,7 +244,32 @@ class Assembly_Controller(QWidget):
         jdata = self.BuidShaderMapDirectorys()
         self.LoadjMapToShaderTree(jdata)
         self.TreeWidget.show()
+    
 
+    def ImportZafariABC(self):
+
+        sourcePath = QFileDialog().getExistingDirectory(None, "Alembic Imput Path", dir='D:\zebratv\Projects\BOLO')
+        if not sourcePath:
+            self.MessageInfoBox(QMessageBox.Critical, "Info", "Action Canceled", "NO Path selected")
+            return
+
+        fileList = self.getAbcFromPaths(sourcePath)
+        if fileList:
+            self.mayaUtils.ImportZafariAbcsToScene(fileList)
+
+    def getAbcFromPaths(self, AlembicPath):
+
+        directory = self.ListDirectory(AlembicPath)
+        if directory:
+            abcList = []
+            for element in directory:
+                if element.endswith('.abc'):
+                    abcList.append('{0}/{1}'.format(AlembicPath, element))
+            
+            return abcList
+        else:
+            return None
+                
 
 class ShaderTreeView(QWidget):
     

@@ -342,11 +342,11 @@ class AssemblyUtils():
             except:
                 print 'No SelectionSets in map'
 
-            try:
-                self.BuildUvChoosers(ShadingMap['chooserMap'], All)
-                self.ConnectShaderToFaces()
-            except:
-                print 'No chooserMap in map'
+            # try:
+            #     self.BuildUvChoosers(ShadingMap['chooserMap'], All)
+            #     self.ConnectShaderToFaces()
+            # except:
+            #     print 'No chooserMap in map'
 
         else:
             return None
@@ -549,4 +549,20 @@ class AssemblyUtils():
                             pm.connectAttr(AttrConnect, x[0])
 
         print 'Uvchossers succes'
-            
+    
+    def ImportShadersToZafari(self, Map, ImportShader=True):
+        pass
+
+    def getZafariRootGrp(self):
+        pass
+
+    def ImportZafariAbcsToScene(self, FileList):
+        pass
+        if FileList:
+            for element in FileList:
+                fileName = element.split('/')[-1]
+                name = fileName.split('.')[0]
+                AssetGrp = pm.group(name='{0}__0'.format(name), empty=True)
+                pm.AbcImport(element, mode='import', fitTimeRange=True, setToStartFrame=True, reparent=AssetGrp)
+        
+        print 'files correctly imported'
