@@ -421,6 +421,9 @@ class AssemblyUtils():
                 #print  'is default set', element.name()
                 continue
             
+            if 'textureEditorIsolateSelectSet' in element.name():
+                continue
+
             print 'this is an ObjetSet: ', element.name()
             memberList =  str( element.members(True)[0] )
             setDictionary['{0}'.format(element.name())] = memberList
@@ -551,22 +554,30 @@ class AssemblyUtils():
                                 attr = None
 
                                 if len(CurrentMesh) > 1:
-                                    print "more tha one object match found using first"
+                                    print "more tha one object match found using first of: ", CurrentMesh
                                 
+                                ''' gets the list of uv names in the mesh '''
                                 allUvs = pm.polyUVSet(CurrentMesh[0], q=True, allUVSets=True)
+                                print 'Uv name list is: ', allUvs
 
-                                elementIndex = allUvs.index(mesh[2])
+                                ''' gets the list of the plugs matching with names '''
+                                indicesList = pm.polyUVSet(CurrentMesh[0], q=True, allUVSetsIndices=True)
+                                print 'plug index list is: ', indicesList
 
+                                ''' gets the correct index for attribute connection '''
+                                nameIndex = allUvs.index(mesh[2])
+                                elementIndex = int( indicesList[nameIndex] )
                                 attr = 'uvSet[{0}].uvSetName'.format(elementIndex)
+                                print 'the correct attr connection is:', attr
 
                             if elementIndex and attr:        
                                 AttrConnect = '{0}.{1}'.format(CurrentMesh[0], attr)
-                                print "mesh connection attr is:" , AttrConnect , 'to', mesh[0]
-                                # pm.connectAttr(AttrConnect, mesh[0])
+                                # print "mesh connection attr is:" , AttrConnect , 'to', mesh[0]
+                                pm.connectAttr(AttrConnect, mesh[0])
 
                 for con in AttrPlace2dConnection:
-                    print con
-                    # pm.connectAttr(con[0], con[1], f=True)
+                    # print con
+                    pm.connectAttr(con[0], con[1], f=True)
 
         print 'Uvchossers succes'
     
