@@ -338,16 +338,21 @@ class AssemblyUtils():
 
             try:        
                 self.BuildSelectionSets(ShadingMap['setMap'], All)
-                self.ConnectShaderToFaces()
+                
             except:
                 print 'No SelectionSets in map'
 
-            # try:
-            #     self.BuildUvChoosers(ShadingMap['chooserMap'], All)
-            #     self.ConnectShaderToFaces()
-            # except:
-            #     print 'No chooserMap in map'
-
+            try:
+                print 'tryin BuildUvChoosers: ', ShadingMap['chooserMap']
+                self.BuildUvChoosers(ShadingMap['chooserMap'], All)
+            
+            except:
+                print 'No chooserMap in map'
+            
+            try:
+                self.ConnectShaderToFaces()
+            except:
+                print 'Unable to Connect shader to faces'
         else:
             return None
 
@@ -369,9 +374,6 @@ class AssemblyUtils():
             print 'ExportZafari To ABC no element to export'
 
     def GetZafariExportGeo(self):
-
-
-
 
         ''' get export geo Group from selection '''
         ExportList = []
@@ -439,16 +441,16 @@ class AssemblyUtils():
             rangeList = taillessString.split(',')
             for element in rangeList:
                 if len(element.split(':')) < 3:
-                    print 'split data Range: ',element.split(':')
+                    # print 'split data Range: ',element.split(':')
                     OutSelectionList.append('{0}.f[{1}]'.format(objectName, element))
                 else:
                     data = element.split(':')
-                    print 'split data range:', data
+                    # print 'split data range:', data
                     for x in range(int(data[0]), int(data[1]) + 1, int(data[2])):
                         OutSelectionList.append('{0}.f[{1}]'.format(objectName, x))
 
             if OutSelectionList:
-                print OutSelectionList
+                # print OutSelectionList
                 return OutSelectionList
             else:
                 return None
@@ -489,8 +491,7 @@ class AssemblyUtils():
             pm.select(clear=True)
 
     def ExportUvChoosersMap(self, jsonPath,jsonName):
-        
-        
+
         UvChoosers  = pm.ls(type='uvChooser')
         if UvChoosers:
             UvChooserMap = {}
@@ -508,8 +509,9 @@ class AssemblyUtils():
                 meshConList = pm.listConnections(element.name(), s=True, p=True, c=True, type='mesh')
                 meshCon = []
                 for itemMesh in meshConList:
-                    meshTupple = ( str(itemMesh[0]), str(itemMesh[1]) )
+                    meshTupple = ( str(itemMesh[0]), str(itemMesh[1]), pm.getAttr(itemMesh[1]) )
                     meshCon.append(meshTupple)
+                    print meshTupple
 
                 UvChooserMap['{0}'.format(element.name())] = {'place2dCon':place2dCon, 'meshCon': meshCon}
             
@@ -522,31 +524,49 @@ class AssemblyUtils():
                 return None
 
     def BuildUvChoosers(self, UvChooserMap, All): 
+
         if UvChooserMap:
             UvChooser = self.LoadJson(UvChooserMap)
-            print UvChooser
+
             for element in UvChooser:
-                
-                print "build Uv Chooser key is: " , element
-                AttrPlace2dConnection =  UvChooser[element]['place2dCon']
+        
                 AttrMeshCon =  UvChooser[element]['meshCon']
-                newUvChooser = pm.createNode('uvChooser', name=element)
+                
+                AttrPlace2dConnection =  UvChooser[element]['place2dCon']
+
+                if AttrMeshCon and AttrPlace2dConnection:
+
+                    print 'creatin Uv Chooser for element in uv choser: ', element 
+                    newUvChooser = pm.createNode('uvChooser', name=element)
+
+                    for mesh in AttrMeshCon:
+                        print 'geo connection is: ', mesh
+                        GeoName = mesh[1].split('.')[0]
+
+                        if GeoName:
+                            CurrentMesh = self.FindGeo(GeoName, All)
+
+                            if CurrentMesh:
+                                elementIndex = None
+                                attr = None
+
+                                if len(CurrentMesh) > 1:
+                                    print "more tha one object match found using first"
+                                
+                                allUvs = pm.polyUVSet(CurrentMesh[0], q=True, allUVSets=True)
+
+                                elementIndex = allUvs.index(mesh[2])
+
+                                attr = 'uvSet[{0}].uvSetName'.format(elementIndex)
+
+                            if elementIndex and attr:        
+                                AttrConnect = '{0}.{1}'.format(CurrentMesh[0], attr)
+                                print "mesh connection attr is:" , AttrConnect , 'to', mesh[0]
+                                # pm.connectAttr(AttrConnect, mesh[0])
+
                 for con in AttrPlace2dConnection:
-                    print 'place Conection for elemen is', con
-                    pm.connectAttr(con[0], con[1], f=True)
-                    print 'Connection Done: ', con
-                for x in AttrMeshCon:
-                    print 'geo connection is: ', x
-                    GeoName = x[1].split('.')[0]
-                    attr = x[1].split('.')[1]
-                    if GeoName:
-                        CurrentMesh = self.FindGeo(GeoName, All)
-                        if CurrentMesh:
-                            if len(CurrentMesh) > 1:
-                                print "more tha one object match found using first"
-                            AttrConnect = '{0}.{1}.uvSetName'.format(CurrentMesh[0], attr)
-                            print "mesh connection attr is:" , AttrConnect
-                            pm.connectAttr(AttrConnect, x[0])
+                    print con
+                    # pm.connectAttr(con[0], con[1], f=True)
 
         print 'Uvchossers succes'
     

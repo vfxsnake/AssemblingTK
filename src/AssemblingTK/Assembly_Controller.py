@@ -37,7 +37,7 @@ class Assembly_Controller(QWidget):
         self.ExportShaders = QPushButton('Open Export Shader Window')
         self.ImportShaders = QPushButton('Open Import Shader Window')
 
-        self.BuildUvChoosers = QPushButton('Build Uv Choosers')
+        # self.BuildUvChoosers = QPushButton('Build Uv Choosers')
         self.ApplayShadersToSelectionSets = QPushButton('Connect shaders to selection Sets')
 
         ''' add widgets to layout'''
@@ -49,12 +49,8 @@ class Assembly_Controller(QWidget):
 
         self.VerticalLayout.addWidget(self.ExportShaders)
         self.VerticalLayout.addWidget(self.ImportShaders)
-        self.VerticalLayout.addWidget(self.ImportShaders)
-        self.VerticalLayout.addWidget(self.ImportShaders)
-
-
-
-
+        # self.VerticalLayout.addWidget(self.BuildUvChoosers)
+        self.VerticalLayout.addWidget(self.ApplayShadersToSelectionSets)
         
         '''connect Fucntions to widgets'''
         self.AbcExportSelectedSingle.clicked.connect(self.ExportSelectedSingle)
@@ -69,6 +65,9 @@ class Assembly_Controller(QWidget):
         self.TreeWidget.AssignPushButton.clicked.connect(self.ApplyShadersToScene)
 
         self.ExportWidget.ExportButton.clicked.connect(self.ExportShaderNjMap)
+
+        # self.BuildUvChoosers.clicked.connect(self.BuildUvChoosersOnScene)
+        self.ApplayShadersToSelectionSets.clicked.connect(self.ApplyShaderToSelectionSetsOnScene)
 
         ''' set layout to main window'''
         self.setLayout(self.VerticalLayout)
@@ -245,7 +244,6 @@ class Assembly_Controller(QWidget):
         self.LoadjMapToShaderTree(jdata)
         self.TreeWidget.show()
     
-
     def ImportZafariABC(self):
 
         sourcePath = QFileDialog().getExistingDirectory(None, "Alembic Imput Path", dir='D:\zebratv\Projects\BOLO')
@@ -269,11 +267,16 @@ class Assembly_Controller(QWidget):
             return abcList
         else:
             return None
+    
+    def BuildUvChoosersOnScene(self):
+        pass
+
+    def ApplyShaderToSelectionSetsOnScene(self):
+        self.mayaUtils.ConnectShaderToFaces()
                 
 
 class ShaderTreeView(QWidget):
-    
-    
+
     def __init__(self):
         super(ShaderTreeView, self).__init__()
 
@@ -288,7 +291,6 @@ class ShaderTreeView(QWidget):
         self.VerticalLayout.addWidget(self.AssignPushButton)
         self.setLayout(self.VerticalLayout)
         
-
     def GetSelectionFromTree(self):
         itemSelectionList = []
         elements =  self.TreeWidget.selectionModel().selectedRows()
@@ -299,7 +301,6 @@ class ShaderTreeView(QWidget):
             return itemSelectionList
         else:
             return None
-    
 
 class ExportShader(QWidget):
     def __init__(self):
