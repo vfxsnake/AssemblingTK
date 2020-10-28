@@ -19,20 +19,23 @@ import pymel.core as pm
 
 
 def RedshiftRender():
-    import pymel.core as pm
+
     pm.setAttr("defaultRenderGlobals.currentRenderer", "redshift", type="string")
     
     SetRenderEXR()
     SetAnimation()
     DisableDefaultLight()
     SetHDResolution()
-    #SetUnifiedSamples()
+    SetUnifiedSamples()
     CreatePipelineAOV()
+
+    RenderCameraSetings()
+    
     pm.inViewMessage(amg='<hl>!!!! Redshift Render !!!!</hl>.', pos='midCenter', fade=True)
     
 
 def GetRedshiftRenderSettings():
-    import pymel.core as pm
+
     renderSettings = pm.PyNode('redshiftOptions')
     if renderSettings:
         return renderSettings
@@ -41,7 +44,7 @@ def GetRedshiftRenderSettings():
         return None
 
 def GetDefaultRenderGlobals():
-    import pymel.core as pm
+
     renderGlobals = pm.PyNode('defaultRenderGlobals')
     if renderGlobals:
         return renderGlobals
@@ -49,7 +52,6 @@ def GetDefaultRenderGlobals():
         return None
 
 def GetDefaultResolution():
-    import pymel.core as pm
 
     DefaultResolution = pm.PyNode('defaultResolution')
     if DefaultResolution:
@@ -58,18 +60,22 @@ def GetDefaultResolution():
         return None
 
 def SetRenderEXR():
+
     rsSettings = GetRedshiftRenderSettings()
     rsSettings.imageFormat.set(1)
 
 def SetAnimation():
+
     renderGlobals = GetDefaultRenderGlobals()
     renderGlobals.animation.set(1)
 
 def DisableDefaultLight():
+
     renderGlobals = GetDefaultRenderGlobals()
     renderGlobals.enableDefaultLight.set(0)
 
 def SetHDResolution():
+
     defaultRes = GetDefaultResolution()
     defaultRes.width.set(1920)
     defaultRes.height.set(1080)
@@ -77,21 +83,24 @@ def SetHDResolution():
     defaultRes.pixelAspect.set(1)
 
 def SetUnifiedSamples():
+
     rsSettings = GetRedshiftRenderSettings()
-    rsSettings.unifiedMaxSamples(128)
-    rsSettings.unifiedMinSamples.set(16)
-    rsSettings.unifiedFilterSize.set(3)
+    rsSettings.attr('unifiedMaxSamples').set(128)
+    rsSettings.attr('unifiedMinSamples').set(16)
+    rsSettings.attr('unifiedFilterSize').set(3)
+
+    rsSettings.attr('primaryGIEngine').set(4)
+    rsSettings.attr('bruteForceGINumRays').set(256)
+    rsSettings.attr('secondaryGIEngine').set(2)
 
 def CreateRedshiftAov(aovType, aovName):
     import maya.mel as mel
-    import pymel.core as pm
+
     aov = mel.eval('rsCreateAov -n "{0}" -t "{1}" ;'.format(aovName, aovType))
     if aov:
         outAov = pm.PyNode(aov)
         if outAov:
-        #     # pm.select(outAov)
-        #     # mel.eval('redshiftAddAov;')
-        #     # pm.select(clear=True)
+            mel.eval('redshiftAddAov;')
             return outAov
 
 def CreateCryptosAOV():
@@ -102,13 +111,53 @@ def CreateCryptosAOV():
 
 def CreateCustomAOV():
     Specular = CreateRedshiftAov('Specular Lighting', 'SpecularLighting')
+    Specular.allLightGroups.set(1)
+
+    Diff = CreateRedshiftAov('Diffuse Lighting', 'DiffuseLighting')
+    Diff.allLightGroups.set(1)
+
     Refraction = CreateRedshiftAov('Refractions', 'Refractions')
+    Refraction.allLightGroups.set(1)
+    Refraction.globalAov.set(2)
+    try:
+        Refraction.lightGroupList.set('EnvCS')
+    except:
+        pass
+
+def CreateOcclutionShader(Name, Samples, Spread, FallOff, maxDistance):
+
+    aoc = pm.shadingNode('RedshiftAmbientOcclusion', name= 'AOC_{0}_Global'.format(Name), asShader=True)
+    aoc.numSamples.set(Samples)
+    aoc.spread.set(Spread)
+    aoc.fallOff.set(FallOff)
+    aoc.maxDistance.set(maxDistance)
+    if aoc:
+        return aoc
+    else:
+        return None
+
+def CreateOccutionAOV(Name, Samples, Spread, FallOff, maxDistance):
+    aocAov = CreateRedshiftAov('Custom', 'AOC_{0}'.format(Name))
+    aocShader = CreateOcclutionShader(Name, Samples, Spread, FallOff, maxDistance)
+    if aocShader and aocAov:
+        pm.connectAttr(aocShader.outColor, aocAov.defaultShader, force=True)
+        print 'conection done: aocShader.outColor, aocAov.defaultShader'
+        aocAov.attr('name').set('AOC_{0}'.format(Name))
+
+def RenderCameraSetings():
+    import pymel.core as pm
+    defaultCams = ['frontShape', 'perspShape', 'sideShape', 'topShape']
+
+    cams = pm.ls(type='camera')
+    for element in cams:
+        if element.name() in defaultCams:
+            print element.name()
+            element.renderable.set(0)
 
 def CreatePipelineAOV():
 
     CreateRedshiftAov('Beauty', 'Beauty')
     CreateRedshiftAov('Depth', 'Z')
-    CreateRedshiftAov('Diffuse Lighting', 'DiffuseLighting')
     CreateRedshiftAov('Global Illumination', 'GI')
     CreateRedshiftAov('Motion Vectors', 'MotionVectors')
     CreateRedshiftAov('Normals', 'N')
@@ -117,4 +166,8 @@ def CreatePipelineAOV():
     CreateCryptosAOV()
     CreateRedshiftAov('Sub Surface Scatter', 'SSS')
     CreateRedshiftAov('World Position', 'P')
+    CreateOccutionAOV('Open', 64, 1, 1, 10)
+    CreateOccutionAOV('Close', 64, 1, 0.5, 1)
+    CreateCustomAOV()
+
 
