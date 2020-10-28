@@ -597,3 +597,9 @@ class AssemblyUtils():
                 pm.AbcImport(element, mode='import', fitTimeRange=True, setToStartFrame=True, reparent=AssetGrp)
         
         print 'files correctly imported'
+
+    # def ExportLiverpoolCache(self):
+        
+    #     transforms = self.GetByType('transform')
+
+    #     for element in transform
