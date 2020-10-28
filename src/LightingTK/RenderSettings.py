@@ -117,3 +117,4 @@ def CreatePipelineAOV():
     CreateCryptosAOV()
     CreateRedshiftAov('Sub Surface Scatter', 'SSS')
     CreateRedshiftAov('World Position', 'P')
+
