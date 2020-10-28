@@ -21,7 +21,6 @@ import pymel.core as pm
 def RedshiftRender():
     import pymel.core as pm
     pm.setAttr("defaultRenderGlobals.currentRenderer", "redshift", type="string")
-    pm.inViewMessage(amg='<hl>!!!! Redshift Render !!!!</hl>.', pos='midCenter', fade=True)
     
     SetRenderEXR()
     SetAnimation()
@@ -29,7 +28,7 @@ def RedshiftRender():
     SetHDResolution()
     #SetUnifiedSamples()
     CreatePipelineAOV()
-
+    pm.inViewMessage(amg='<hl>!!!! Redshift Render !!!!</hl>.', pos='midCenter', fade=True)
     
 
 def GetRedshiftRenderSettings():
