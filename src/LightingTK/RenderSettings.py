@@ -107,6 +107,7 @@ def CreateCryptosAOV():
     crypto1 = CreateRedshiftAov('Cryptomatte', 'Cryptomatte')
     crypto2 = CreateRedshiftAov('Cryptomatte', 'Cryptomatte_Shader')
     crypto2.attr('name').set('Cryptomatte_Shader')
+    crypto2.attr('idType').set(1)
 
 
 def CreateCustomAOV():
