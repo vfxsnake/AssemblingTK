@@ -158,7 +158,8 @@ def RenderCameraSetings():
 def CreatePipelineAOV():
 
     beauty = CreateRedshiftAov('Beauty', 'Beauty')
-    beauty.attr('allLightGroups').set(1)
+    beauty.attr('allLightGroups').set(0)
+    beauty.attr('globalAov').set(1)
     CreateRedshiftAov('Depth', 'Z')
     CreateRedshiftAov('Global Illumination', 'GI')
     CreateRedshiftAov('Motion Vectors', 'MotionVectors')

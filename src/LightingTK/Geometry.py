@@ -29,6 +29,7 @@ def GeoSubdivision2():
         pm.inViewMessage(amg='<hl>Select GEOMESH!!</hl>.', pos='midCenter', fade=True)
 
 def PrimaryVisibilityOff():
+    EnsurePorxyVis()
     GeoMeshSelection = pm.ls(type="mesh", selection=True, dag=True)
 
     if GeoMeshSelection:
@@ -41,6 +42,7 @@ def PrimaryVisibilityOff():
         pm.inViewMessage(amg='<hl>Select GEOMESH!!</hl>.', pos='midCenter', fade=True)
 
 def PrimaryVisibilityOn():
+    EnsurePorxyVis()
     GeoMeshSelection = pm.ls(type="mesh", selection=True, dag=True)
 
     if GeoMeshSelection:
@@ -75,3 +77,9 @@ def CastShadowsOn():
                 pm.inViewMessage(amg='<hl>CastShadows ON !!</hl>.', pos='midCenter', fade=True)
     else:
         pm.inViewMessage(amg='<hl>Select GEOMESH!!</hl>.', pos='midCenter', fade=True)
+
+def EnsurePorxyVis():
+    
+    allStds = pm.ls(type='RedshiftProxyMesh')
+    for element in allStds:
+        element.visibilityMode.set(1)

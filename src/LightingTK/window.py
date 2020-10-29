@@ -24,11 +24,19 @@ class ImageDialog(QDialog):
         QDialog.__init__(self)
 
         import Display
+
         import Geometry
+        reload(Geometry)
+
         import Fur
+
         import Lights
+
         import RenderLayer
+
         import RenderSettings
+        reload(RenderSettings)
+
         import Utilities
 
         # Set up the user interface from Designer.

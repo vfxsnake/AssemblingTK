@@ -20,6 +20,7 @@ except ImportError:
 
 if __name__ == '__main__':
     import window
+    reload(window)
 
     #app= QApplication(sys.argv)
     window = window.ImageDialog()
