@@ -118,7 +118,7 @@ def CreateCustomAOV():
     Diff.allLightGroups.set(1)
 
     Refraction = CreateRedshiftAov('Refractions', 'Refractions')
-    Refraction.allLightGroups.set(1)
+    Refraction.allLightGroups.set(0)
     Refraction.globalAov.set(2)
     try:
         Refraction.lightGroupList.set('EnvCS')
@@ -157,7 +157,8 @@ def RenderCameraSetings():
 
 def CreatePipelineAOV():
 
-    CreateRedshiftAov('Beauty', 'Beauty')
+    beauty = CreateRedshiftAov('Beauty', 'Beauty')
+    beauty.attr('allLightGroups').set(1)
     CreateRedshiftAov('Depth', 'Z')
     CreateRedshiftAov('Global Illumination', 'GI')
     CreateRedshiftAov('Motion Vectors', 'MotionVectors')
