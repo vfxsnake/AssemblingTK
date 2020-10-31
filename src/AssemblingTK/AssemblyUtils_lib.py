@@ -2,6 +2,22 @@ import pymel.core as pm
 
 class AssemblyUtils():
     ''' maya Genearl Tools'''
+    
+    def GetRootGrps(self):
+        """
+        Finds the root Groups in the maya scene, search for every transfroma how has no parent
+        """
+        all  = pm.ls(type='transform')
+        rootList = []
+        for element in all:
+            if not element.getParent() and not element.getShape():
+                rootList.append(element)
+        
+        if rootList:
+            return rootList
+        
+        else:
+            return None
 
     def GetSelection(self):
         '''return a list of selected objets'''
@@ -581,14 +597,77 @@ class AssemblyUtils():
 
         print 'Uvchossers succes'
     
-    def ImportShadersToZafari(self, Map, ImportShader=True):
-        pass
+    def ImportShadersToZafari(self, Map, shapeList, ImportShader=True):
+        print "start ApplyShaderMap to zafari"
 
-    def getZafariRootGrp(self):
-        pass
+        if self.FileExists(Map):
+            ShadingMap = self.LoadJson(Map)
+            print 'shading map : ', ShadingMap
+
+            if ImportShader:
+                print "applyShader Map before import"
+                if self.FileExists(ShadingMap['SourceFile']):
+                    self.ImportFile(ShadingMap['SourceFile'])
+                else:
+                    return None
+            
+            print "applyShader Map affter import"
+
+            print "applyShader Map before getAllShapes()"
+            All = shapeList
+
+            print All
+            print "applyShader Map before i key loop"
+            for key in ShadingMap:
+                if not (key == 'SourceFile' or key == 'AttrMap' or key == 'setMap' or key == 'chooserMap'):
+                    shadingGroup = self.FindSG(key)
+                    if shadingGroup:
+                        geoList = ShadingMap[key]
+                        if geoList:
+                            print 'key is:' , key, 'data is: ', geoList
+                            for geo in geoList:
+                                print 'Current geo name is: ', geo 
+                                geoSplit = geo.split('__')[1]
+
+                                print 'split geo __ is: ', geoSplit
+                                geoFound = self.FindZafariGeo(geoSplit, All)
+                                
+                                if geoFound:
+                                    for item in geoFound: 
+                                        pm.sets(shadingGroup, e=True, forceElement=item)
+                                        print 'Shader Connected from {0} to {1}'.format(shadingGroup, geo)
+                                else:
+                                    print 'No maching Geo Found in scene : {0}'.format(geoList)
+                        else:
+                            print 'No Geo list found in {0}'.format(key)
+
+                    else:
+                        print 'no shading group found {0}'.format(key)
+            
+            self.applyAttrMap(ShadingMap['AttrMap'], All)
+
+            try:        
+                self.BuildSelectionSets(ShadingMap['setMap'], All)
+                
+            except:
+                print 'No SelectionSets in map'
+
+            try:
+                print 'tryin BuildUvChoosers: ', ShadingMap['chooserMap']
+                self.BuildUvChoosers(ShadingMap['chooserMap'], All)
+            
+            except:
+                print 'No chooserMap in map'
+            
+            try:
+                self.ConnectShaderToFaces()
+            except:
+                print 'Unable to Connect shader to faces or no face sets to use'
+        else:
+            return None
 
     def ImportZafariAbcsToScene(self, FileList):
-        pass
+
         if FileList:
             for element in FileList:
                 fileName = element.split('/')[-1]
@@ -598,8 +677,111 @@ class AssemblyUtils():
         
         print 'files correctly imported'
 
-    # def ExportLiverpoolCache(self):
-        
-    #     transforms = self.GetByType('transform')
+    def GetZafariCharactersFromScene(self):
+        roots = self.GetRootGrps()
+        if roots:
+            
+            ZafariCharacters = {}
+            for element in roots:
+                if 'Zoomba' in element.name():
+                    ZafariCharacters['Zoomba'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Zoomba.jmap', 'Mesh':[] }
+                    ZafariCharacters['Zoomba']['Mesh'].append(element)
+                
+                if 'Antonio' in element.name():
+                    ZafariCharacters['Antonio'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Antonio.jmap', 'Mesh':[] }
+                    ZafariCharacters['Antonio']['Mesh'].append(element)
 
-    #     for element in transform
+                if 'Babatua' in element.name():
+                    ZafariCharacters['Babatua'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Babatua.jmap', 'Mesh':[] }
+                    ZafariCharacters['Babatua']['Mesh'].append(element)
+
+                if 'Bubba' in element.name():
+                    ZafariCharacters['Babatua'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Babatua.jmap', 'Mesh':[] }
+                    ZafariCharacters['Babatua']['Mesh'].append(element)
+                
+                if 'Colette' in element.name():
+                    ZafariCharacters['Colette'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Colette.jmap', 'Mesh':[] }
+                    ZafariCharacters['Colette']['Mesh'].append(element)
+
+                if 'Ernesto' in element.name():
+                    ZafariCharacters['Ernesto'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Ernesto.jmap', 'Mesh':[] }
+                    ZafariCharacters['Ernesto']['Mesh'].append(element)
+                
+                if 'Fan' in element.name():
+                    ZafariCharacters['Fan'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Fan.jmap', 'Mesh':[] }
+                    ZafariCharacters['Fan']['Mesh'].append(element)
+                
+                if 'Frack' in element.name():
+                    ZafariCharacters['Frack'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Frack.jmap', 'Mesh':[] }
+                    ZafariCharacters['Frack']['Mesh'].append(element)
+                
+                if 'Pokey' in element.name():
+                    ZafariCharacters['Pokey'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Pokey.jmap', 'Mesh':[] }
+                    ZafariCharacters['Pokey']['Mesh'].append(element)
+                
+                if 'Renalda' in element.name():
+                    ZafariCharacters['Renalda'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Renalda.jmap', 'Mesh':[] }
+                    ZafariCharacters['Renalda']['Mesh'].append(element)
+
+                if 'Quincy' in element.name():
+                    ZafariCharacters['Quincy'] = { 'map':'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Zafari/Quincy.jmap', 'Mesh':[] }
+                    ZafariCharacters['Quincy']['Mesh'].append(element)
+
+            if ZafariCharacters:
+                return ZafariCharacters
+            
+            else:
+                return None
+        
+        else:
+            return None
+
+    def GetMeshFromGroup(self, Group):
+        """
+        docstring
+        """
+        meshes = pm.listRelatives(Group, type='mesh', ad=True)
+        return meshes
+
+    def FindZafariGeo(self, GeoName, GeoList):
+        print GeoName, GeoList
+        found = []
+        if GeoList:
+            for element in GeoList:
+                print 'the geo name is:', GeoName, 'element name is:', element.name()
+                if GeoName in element.name():
+                    
+                    print "element found : {0}".format(element.name())
+                    
+                    found.append(element.name())
+            
+            if found:
+                return found
+
+            else:
+                print 'Not Found: ', GeoName
+                return None
+        else:
+            return None
+
+    def ApplyZafaryShaders(self):
+        ZafariCharacters  = self.GetZafariCharactersFromScene()
+
+        if ZafariCharacters:
+            for character in ZafariCharacters:
+                characterInFile = ZafariCharacters[character]['Mesh']  
+          
+                if(characterInFile):
+                    importShaders = True
+                    for element in characterInFile:
+                        print 'Elemtn is: ',element,character, ZafariCharacters[character]['map']
+                        hierarchy = self.GetMeshFromGroup(element)
+
+                        self.ImportShadersToZafari(ZafariCharacters[character]['map'], hierarchy, importShaders)
+                        importShaders = False
+
+    def ExportLiverpoolCache(self):
+        transforms = self.GetByType('transform')
+        for element in transforms:
+            if '_GEO' in element.name() and not element.getShape():
+                print element

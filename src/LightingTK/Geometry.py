@@ -3,7 +3,6 @@ import sys
 import pymel.core as pm
 import maya.mel as mel
 
-
 def GeoSubdivision0():
     GeoMeshSelection = pm.ls(type="mesh", selection=True, dag=True)
 

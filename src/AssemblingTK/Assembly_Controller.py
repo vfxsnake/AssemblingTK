@@ -30,34 +30,42 @@ class Assembly_Controller(QWidget):
         self.VerticalLayout = QVBoxLayout()
         self.AbcExportSelectedSingle = QPushButton('Export Selected Single .abc')
         self.AbcExportSelectedMultiple = QPushButton('Export Selected Multiple .abc')
-        self.AbcExportZafariMultiple = QPushButton('Export Zafari Multiple .abc')
-        
-        self.AbcImportZafari = QPushButton('Import Zafari Abc to scene')
+        self.AbcExportLiverpoolMultiple = QPushButton('Export Liverpool Characters')
         
         self.ExportShaders = QPushButton('Open Export Shader Window')
         self.ImportShaders = QPushButton('Open Import Shader Window')
 
+        self.AbcExportZafariMultiple = QPushButton('Export Zafari Multiple .abc')
+        self.AbcImportZafari = QPushButton('Import Zafari Abc to scene')
+        self.ImportZafariShaders = QPushButton('Apply Shaders to Zafari Characters')
+
         # self.BuildUvChoosers = QPushButton('Build Uv Choosers')
         self.ApplayShadersToSelectionSets = QPushButton('Connect shaders to selection Sets')
+
+        # line zeparator
+        self.ZafaryLine = QLine()
+        self.ZarayLabel = QLabel('Zafari Assembly')
 
         ''' add widgets to layout'''
         self.VerticalLayout.addWidget(self.AbcExportSelectedSingle)
         self.VerticalLayout.addWidget(self.AbcExportSelectedMultiple)
-        self.VerticalLayout.addWidget(self.AbcExportZafariMultiple)
-
-        self.VerticalLayout.addWidget(self.AbcImportZafari)
 
         self.VerticalLayout.addWidget(self.ExportShaders)
         self.VerticalLayout.addWidget(self.ImportShaders)
         # self.VerticalLayout.addWidget(self.BuildUvChoosers)
+        self.VerticalLayout.addWidget(self.AbcExportLiverpoolMultiple)
         self.VerticalLayout.addWidget(self.ApplayShadersToSelectionSets)
+
+        # self.VerticalLayout.addWidget(self.ZafaryLine)
+        self.VerticalLayout.addWidget(self.ZarayLabel)
+        self.VerticalLayout.addWidget(self.AbcExportZafariMultiple)
+        self.VerticalLayout.addWidget(self.AbcImportZafari)
+        self.VerticalLayout.addWidget(self.ImportZafariShaders)
         
         '''connect Fucntions to widgets'''
         self.AbcExportSelectedSingle.clicked.connect(self.ExportSelectedSingle)
         self.AbcExportSelectedMultiple.clicked.connect(self.ExportSelectedMultiple)
-        self.AbcExportZafariMultiple.clicked.connect(self.ExportZafariMultiple)
-
-        self.AbcImportZafari.clicked.connect(self.ImportZafariABC)
+        self.AbcExportLiverpoolMultiple.clicked.connect(self.ExportLiverpoolMultiple)
 
         self.ExportShaders.clicked.connect(self.OpenShaderExportWidget)
         self.ImportShaders.clicked.connect(self.OpenShaderMapTree)
@@ -69,6 +77,9 @@ class Assembly_Controller(QWidget):
         # self.BuildUvChoosers.clicked.connect(self.BuildUvChoosersOnScene)
         self.ApplayShadersToSelectionSets.clicked.connect(self.ApplyShaderToSelectionSetsOnScene)
 
+        self.AbcExportZafariMultiple.clicked.connect(self.ExportZafariMultiple)
+        self.AbcImportZafari.clicked.connect(self.ImportZafariABC)
+        self.ImportZafariShaders.clicked.connect(self.ApplyShaderToZafary)
         ''' set layout to main window'''
         self.setLayout(self.VerticalLayout)
 
@@ -273,7 +284,13 @@ class Assembly_Controller(QWidget):
 
     def ApplyShaderToSelectionSetsOnScene(self):
         self.mayaUtils.ConnectShaderToFaces()
-                
+
+    def ExportLiverpoolMultiple(self):
+        self.mayaUtils.ExportLiverpoolCache()
+    
+    def ApplyShaderToZafary(self):
+        self.mayaUtils.ApplyZafaryShaders()
+
 
 class ShaderTreeView(QWidget):
 
@@ -303,6 +320,7 @@ class ShaderTreeView(QWidget):
             return None
 
 class ExportShader(QWidget):
+
     def __init__(self):
         super(ExportShader, self).__init__()
 
