@@ -233,13 +233,15 @@ class AssemblyUtils():
             subdivition = ShapeNode.rsEnableSubdivision.get()
             maxSubdiv = ShapeNode.rsMaxTessellationSubdivs.get()
             castShadow = ShapeNode.castsShadows.get()
+            displacemet = ShapeNode.rsEnableDisplacement.get()
             
             attrDict = {'ShapeName' : ShapeNode.name(), 
                         'subdivition' : subdivition,
                         'maxSubdiv' : maxSubdiv,
-                        'castShadow':castShadow}
+                        'castShadow':castShadow, 
+                        'displacement':displacemet}
+            
             print attrDict
-
             return attrDict
             
         else:
@@ -303,6 +305,11 @@ class AssemblyUtils():
                                 currentMesh.castsShadows.set(element['castShadow'])
                             except:
                                 print 'no cast shadow attr'
+                            
+                            try:
+                                currentMesh.rsEnableDisplacement.set(element['displacement'])
+                            except:
+                                print 'no displacement to set'
 
             else:
                 print "No data to Load AttrMap"
@@ -781,6 +788,7 @@ class AssemblyUtils():
                         importShaders = False
 
     def ExportLiverpoolCache(self):
+
         transforms = self.GetByType('transform')
         for element in transforms:
             if '_GEO' in element.name() and not element.getShape():
