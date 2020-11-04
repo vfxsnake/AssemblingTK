@@ -199,41 +199,83 @@ class AssemblyUtils():
         for element in AllFurs:
             FurList[element.name()] = {'Connection':[]}
             meshConnections =  element.listConnections(type='mesh', c=True, p=True)
-            
+
             cacheFile = element.cacheFileName.get()
 
             FurList[element.name()]['CacheFile'] = cacheFile
+            FurList[element.name()]['Shader'] = element.listConnections(type='shadingEngine')[0].name()
 
             for pair in meshConnections:
-                FurList[element.name()]['Connection'].append(pair[0].name())
-                FurList[element.name()]['Connection'].append(pair[1].name())
+
+                currentPair = [pair[0].name(),pair[1].name()]
+                FurList[element.name()]['Connection'].append(currentPair)
+
+        
         if FurList:
             furMapName = '{0}.furMap'.format(OutName)
-            print 'fur map name is: ', furMapName
+
             exportMap = self.WriteJson(FurList, OutPath, furMapName)
             return exportMap
+ 
+    def CreateYetiNode(self, YetiName, YetiCacheFile):
+        CurrentYeti = pm.createNode('pgYetiMaya', name=YetiName)
+        CurrentYeti.viewportDensity.set(0.01)
+        CurrentYeti.drawFeedback.set(0)
+        CurrentYeti.displayOutput.set(0)
+        CurrentYeti.fileMode.set(1)
+        CurrentYeti.overrideCacheWithInputs.set(1)
+        CurrentYeti.cacheFileName.set(YetiCacheFile)
+        return CurrentYeti      
+
+    def CreateYetiAttrOnMesh(self, GeoMeshName):
+
+        pm.addAttr(GeoMeshName, longName='yetiSubdivision', at='bool')
+        pm.setAttr('{0}.yetiSubdivision'.format(GeoMeshName), True)
+        
+        pm.addAttr(GeoMeshName, longName='yetiSubdivisionIterations', at='long')
+        pm.setAttr('{0}.yetiSubdivisionIterations'.format(GeoMeshName), 2)
+
+        pm.addAttr(GeoMeshName, longName='yetiUVSetName', dt='string')
+
+    def ConnectFurShader(self, SG, FurShape):
+        if pm.objExists(SG):
+            pm.sets(SG, e=True, forceElement=FurShape)
 
     def BuildFur(self,Map, AllShapes):
+    
         if Map:
-
+            asset =  Map.split('/')[-1].split('.')[0]
+            rootGrp = None
+            furGrp = pm.group(empty=True, name='{0}_FUR'.format(asset))
             FurDictList = self.LoadJson(Map)
             
             if FurDictList:
+                print 'Jmap loaded:', Map
             
                 for element in FurDictList:
-                    CurrentYeti = pm.createNode('pgYetiMaya', name=element)
-                    CurrentYeti.fileMode.set(1)
-                    CurrentYeti.overrideCacheWithInputs.set(1)
-                    CurrentYeti.cacheFileName.set(FurDictList[element]['CacheFile'])
-                    GeoName = FurDictList[element]['Connection'][-1].split('.')[0]
+                    print 'current Fur shapie is:', element
+                    CurrentYeti = self.CreateYetiNode(element, FurDictList[element]['CacheFile'])
+                    CurrentShader = FurDictList[element]['Shader']
+                    self.ConnectFurShader(CurrentShader, CurrentYeti)
+                    for connection in FurDictList[element]['Connection']:
+                        print 'CurrentConnection is:', connection
+                        GeoName = connection[1].split('.')[0]                    
+                        foundGeo = self.FindGeo(GeoName, AllShapes)
                     
-                    foundGeo = self.FindGeo(GeoName, AllShapes)
+                        if foundGeo:
+                            for geo in foundGeo:
+                                pyGeo = pm.PyNode(geo)
+                                rootGrp = pyGeo.getAllParents()[-1]
+                                attr = '{0}.worldMesh[0]'.format(geo)
+                                print 'connection', attr, connection[0]
+                                pm.connectAttr(attr,connection[0])
+                                self.CreateYetiAttrOnMesh(geo)
                     
-                    if foundGeo:
-                        for geo in foundGeo:
-                            attr = '{0}.worldMesh[0]'.format(geo)
-                            print 'connection', attr, FurDictList[element]['Connection'][0]
-                            pm.connectAttr(attr, FurDictList[element]['Connection'][0])
+
+                    if furGrp:
+                        pm.parent(CurrentYeti, furGrp)
+                    if rootGrp:
+                        pm.parent(furGrp, rootGrp)
 
     def ExportShaderNjMaps(self, OutPath, OutName, AttrMap, setMap, chooserMap, FurMap):
         print "Out path and Out name is: ",OutPath, OutName
