@@ -208,6 +208,7 @@ class AssemblyUtils():
                 FurList[element.name()]['Connection'].append(pair[0].name())
                 FurList[element.name()]['Connection'].append(pair[1].name())
         if FurList:
+            furMapName = '{0}.furMap'.format(OutName)
             exportMap = self.WriteJson(FurList, OutPath, OutName)
             return exportMap
 
