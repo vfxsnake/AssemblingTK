@@ -142,7 +142,7 @@ class AssemblyUtils():
                     sgList.append(sg)
         return sgList
 
-    def BuildShaderAsignMap(self, MapPath, MapName, SourceFile, AttrMap, setMap, chooserMap):
+    def BuildShaderAsignMap(self, MapPath, MapName, SourceFile, AttrMap, setMap, chooserMap, FurMap):
         ''' 
             Buids a dictionary and stores it in a json archive for future lookup.
         '''
@@ -154,6 +154,7 @@ class AssemblyUtils():
             ShadingMap['AttrMap'] = AttrMap
             ShadingMap['setMap'] = setMap
             ShadingMap['chooserMap'] = chooserMap
+            ShadingMap['FurMap'] = FurMap
             for sg in sgs:
 
                 KeyValue = []
@@ -191,12 +192,52 @@ class AssemblyUtils():
             print 'Export Done: ', outFile
             pm.select(cl=True)
             return outFile
-  
-    def ExportShaderNjMaps(self, OutPath, OutName, AttrMap, setMap, chooserMap):
+
+    def ExportFurMap(self, OutPath, OutName):
+        AllFurs = pm.ls(type='pgYetiMaya')
+        FurList = {}
+        for element in AllFurs:
+            FurList[element.name()] = {'Connection':[]}
+            meshConnections =  element.listConnections(type='mesh', c=True, p=True)
+            
+            cacheFile = element.cacheFileName.get()
+
+            FurList[element.name()]['CacheFile'] = cacheFile
+
+            for pair in meshConnections:
+                FurList[element.name()]['Connection'].append(pair[0].name())
+                FurList[element.name()]['Connection'].append(pair[1].name())
+        if FurList:
+            exportMap = self.WriteJson(FurList, OutPath, OutName)
+            return exportMap
+
+    def BuildFur(self,Map, AllShapes):
+        if Map:
+
+            FurDictList = self.LoadJson(Map)
+            
+            if FurDictList:
+            
+                for element in FurDictList:
+                    CurrentYeti = pm.createNode('pgYetiMaya', name=element)
+                    CurrentYeti.fileMode.set(1)
+                    CurrentYeti.overrideCacheWithInputs.set(1)
+                    CurrentYeti.cacheFileName.set(FurDictList[element]['CacheFile'])
+                    GeoName = FurDictList[element]['Connection'][-1].split('.')[0]
+                    
+                    foundGeo = self.FindGeo(GeoName, AllShapes)
+                    
+                    if foundGeo:
+                        for geo in foundGeo:
+                            attr = '{0}.worldMesh[0]'.format(geo)
+                            print 'connection', attr, FurDictList[element]['Connection'][0]
+                            pm.connectAttr(attr, FurDictList[element]['Connection'][0])
+
+    def ExportShaderNjMaps(self, OutPath, OutName, AttrMap, setMap, chooserMap, FurMap):
         print "Out path and Out name is: ",OutPath, OutName
         export = self.ExportShadersOnly(OutPath,OutName)
         print export
-        self.BuildShaderAsignMap(OutPath, OutName, export, AttrMap, setMap, chooserMap)
+        self.BuildShaderAsignMap(OutPath, OutName, export, AttrMap, setMap, chooserMap, FurMap)
 
     def ImportFile(self, FileToImport):
         print "start Import File"
@@ -337,7 +378,7 @@ class AssemblyUtils():
 
             print "applyShader Map before i key loop"
             for key in ShadingMap:
-                if not (key == 'SourceFile' or key == 'AttrMap' or key == 'setMap' or key == 'chooserMap'):
+                if not (key == 'SourceFile' or key == 'AttrMap' or key == 'setMap' or key == 'chooserMap' or key == 'FurMap'):
                     shadingGroup = self.FindSG(key)
                     if shadingGroup:
                         geoList = ShadingMap[key]
@@ -376,6 +417,11 @@ class AssemblyUtils():
                 self.ConnectShaderToFaces()
             except:
                 print 'Unable to Connect shader to faces'
+            
+            try:
+                self.BuildFur(ShadingMap['FurMap'])
+            except:
+                print 'Unable to Connect Fur sys'
         else:
             return None
 

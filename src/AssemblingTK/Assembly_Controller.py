@@ -242,7 +242,8 @@ class Assembly_Controller(QWidget):
             AttrMap = self.mayaUtils.BuildAttrMap(marcaName,AssetName)
             SetsMap = self.mayaUtils.StoreSelectionSets(marcaName, AssetName)
             ChooserMap = self.mayaUtils.ExportUvChoosersMap(marcaName, AssetName)
-            self.mayaUtils.ExportShaderNjMaps(marcaName, AssetName, AttrMap, SetsMap, ChooserMap)
+            FurMap = self.mayaUtils.ExportFurMap(marcaName, AssetName)
+            self.mayaUtils.ExportShaderNjMaps(marcaName, AssetName, AttrMap, SetsMap, ChooserMap, FurMap)
             self.MessageInfoBox(QMessageBox.Information, 'Succed', 'Shaders exported correctly', 'shader and jmaps correcly export')
         else:
             print 'No name set to export'
