@@ -209,7 +209,8 @@ class AssemblyUtils():
                 FurList[element.name()]['Connection'].append(pair[1].name())
         if FurList:
             furMapName = '{0}.furMap'.format(OutName)
-            exportMap = self.WriteJson(FurList, OutPath, OutName)
+            print 'fur map name is: ', furMapName
+            exportMap = self.WriteJson(FurList, OutPath, furMapName)
             return exportMap
 
     def BuildFur(self,Map, AllShapes):
@@ -420,7 +421,7 @@ class AssemblyUtils():
                 print 'Unable to Connect shader to faces'
             
             try:
-                self.BuildFur(ShadingMap['FurMap'])
+                self.BuildFur(ShadingMap['FurMap'], All)
             except:
                 print 'Unable to Connect Fur sys'
         else:
