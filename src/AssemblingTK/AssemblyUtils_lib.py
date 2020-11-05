@@ -222,8 +222,8 @@ class AssemblyUtils():
         CurrentYeti.viewportDensity.set(0.01)
         CurrentYeti.drawFeedback.set(0)
         CurrentYeti.displayOutput.set(0)
-        CurrentYeti.fileMode.set(1)
-        CurrentYeti.overrideCacheWithInputs.set(1)
+        CurrentYeti.fileMode.set(0)
+        CurrentYeti.overrideCacheWithInputs.set(0)
         CurrentYeti.cacheFileName.set(YetiCacheFile)
         return CurrentYeti      
 
@@ -270,6 +270,9 @@ class AssemblyUtils():
                                 print 'connection', attr, connection[0]
                                 pm.connectAttr(attr,connection[0])
                                 self.CreateYetiAttrOnMesh(geo)
+                    
+                    CurrentYeti.fileMode.set(1)
+                    CurrentYeti.CurrentYeti.overrideCacheWithInputs.set(1)
                     
 
                     if furGrp:
@@ -319,12 +322,14 @@ class AssemblyUtils():
             maxSubdiv = ShapeNode.rsMaxTessellationSubdivs.get()
             castShadow = ShapeNode.castsShadows.get()
             displacemet = ShapeNode.rsEnableDisplacement.get()
+            visibility = ShapeNode.getParent().visibility.get()
             
             attrDict = {'ShapeName' : ShapeNode.name(), 
                         'subdivition' : subdivition,
                         'maxSubdiv' : maxSubdiv,
                         'castShadow':castShadow, 
-                        'displacement':displacemet}
+                        'displacement':displacemet,
+                        'visibility':visibility}
             
             print attrDict
             return attrDict
