@@ -272,7 +272,7 @@ class AssemblyUtils():
                                 self.CreateYetiAttrOnMesh(geo)
                     
                     CurrentYeti.fileMode.set(1)
-                    CurrentYeti.CurrentYeti.overrideCacheWithInputs.set(1)
+                    CurrentYeti.overrideCacheWithInputs.set(1)
                     
 
                     if furGrp:
