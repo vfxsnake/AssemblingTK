@@ -250,27 +250,31 @@ class AssemblyUtils():
             FurDictList = self.LoadJson(Map)
             
             if FurDictList:
-                print 'Jmap loaded:', Map
             
                 for element in FurDictList:
-                    print 'current Fur shapie is:', element
+
                     CurrentYeti = self.CreateYetiNode(element, FurDictList[element]['CacheFile'])
                     CurrentShader = FurDictList[element]['Shader']
                     self.ConnectFurShader(CurrentShader, CurrentYeti)
                     for connection in FurDictList[element]['Connection']:
-                        print 'CurrentConnection is:', connection
+
                         GeoName = connection[1].split('.')[0]                    
                         foundGeo = self.FindGeo(GeoName, AllShapes)
                     
                         if foundGeo:
                             for geo in foundGeo:
                                 pyGeo = pm.PyNode(geo)
-                                rootGrp = pyGeo.getAllParents()[-1]
-                                attr = '{0}.worldMesh[0]'.format(geo)
-                                print 'connection', attr, connection[0]
-                                pm.connectAttr(attr,connection[0])
-                                self.CreateYetiAttrOnMesh(geo)
-                    
+                                if not 'bolo_blendPack' in pyGeo.name():
+                                    
+                                    rootGrp = pyGeo.getAllParents()[-1]
+                                    attr = '{0}.worldMesh[0]'.format(geo)
+                                    print 'connection', attr, connection[0]
+                                    pm.connectAttr(attr,connection[0])
+                                    self.CreateYetiAttrOnMesh(geo)
+
+                                else:
+                                    print 'geo name is:', pyGeo.name() 
+
                     CurrentYeti.fileMode.set(1)
                     CurrentYeti.overrideCacheWithInputs.set(1)
                     
@@ -407,25 +411,21 @@ class AssemblyUtils():
             print 'No AttrMap'
 
     def applyShaderMap(self, Map, importShader=True):
-        print "start ApplyShaderMap"
-        
+
         if self.FileExists(Map):
             ShadingMap = self.LoadJson(Map)
-            print 'shading map : ', ShadingMap
+
 
             if importShader:
-                print "applyShader Map before import"
+
                 if self.FileExists(ShadingMap['SourceFile']):
                     self.ImportFile(ShadingMap['SourceFile'])
                 else:
                     return None
             
-            print "applyShader Map affter import"
 
-            print "applyShader Map before getAllShapes()"
             All = self.getAllShapes()
 
-            print "applyShader Map before i key loop"
             for key in ShadingMap:
                 if not (key == 'SourceFile' or key == 'AttrMap' or key == 'setMap' or key == 'chooserMap' or key == 'FurMap'):
                     shadingGroup = self.FindSG(key)
@@ -438,7 +438,7 @@ class AssemblyUtils():
                                 if geoFound:
                                     for item in geoFound: 
                                         pm.sets(shadingGroup, e=True, forceElement=item)
-                                        print 'Shader Connected from {0} to {1}'.format(shadingGroup, geo)
+                                        # print 'Shader Connected from {0} to {1}'.format(shadingGroup, geo)
                                 else:
                                     print 'No maching Geo Found in scene : {0}'.format(geoList)
                         else:
