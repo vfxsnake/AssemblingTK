@@ -278,7 +278,6 @@ class AssemblyUtils():
             # print currentMeshList
             return currentMeshList
     
-
     def CreateReferenceObject(self):
         allFurs = self.GetAllPgYetiMaya()
         refObjectList = []
@@ -385,6 +384,8 @@ class AssemblyUtils():
             maxSubdiv = ShapeNode.rsMaxTessellationSubdivs.get()
             castShadow = ShapeNode.castsShadows.get()
             displacemet = ShapeNode.rsEnableDisplacement.get()
+            maxDisplacement = ShapeNode.rsMaxDisplacement.get()
+            displaceScale = ShapeNode.rsDisplacementScale.get()
             visibility = ShapeNode.getParent().visibility.get()
             
             attrDict = {'ShapeName' : ShapeNode.name(), 
@@ -392,6 +393,8 @@ class AssemblyUtils():
                         'maxSubdiv' : maxSubdiv,
                         'castShadow':castShadow, 
                         'displacement':displacemet,
+                        'maxDisplace':maxDisplacement,
+                        'displaceScale': displaceScale,
                         'visibility':visibility}
             
             print attrDict
@@ -463,6 +466,16 @@ class AssemblyUtils():
                                 currentMesh.rsEnableDisplacement.set(element['displacement'])
                             except:
                                 print 'no displacement to set'
+
+                            try:
+                                currentMesh.rsMaxDisplacement.set(element['maxDisplace'])
+                            except:
+                                print 'no max displacement to set'
+
+                            try:
+                                currentMesh.rsDisplacementScale.set(element['displaceScale'])
+                            except:
+                                print 'no displacement scale to set'
 
             else:
                 print "No data to Load AttrMap"
