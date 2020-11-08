@@ -20,41 +20,78 @@ class Assembly_Controller(QWidget):
 
         self.mayaUtils = Utils.AssemblyUtils()
         self.setWindowTitle("Assembly tool set")
-        self.setGeometry(300,300, 500,400)
-        self.setMinimumHeight(100)
-        self.setMinimumWidth(100)
+        self.setGeometry(200,200, 600,600)
+        self.setMinimumHeight(500)
+        self.setMinimumWidth(500)
         self.setMaximumHeight(1000)
-        self.setMaximumWidth(400)
+        self.setMaximumWidth(500)
 
         ''' create widgets '''
         self.VerticalLayout = QVBoxLayout()
+
         self.AbcExportSelectedSingle = QPushButton('Export Selected Single .abc')
+        self.AbcExportSelectedSingle.setStyleSheet("background-color: darkCyan")
+
         self.AbcExportSelectedMultiple = QPushButton('Export Selected Multiple .abc')
+        self.AbcExportSelectedMultiple.setStyleSheet("background-color: darkCyan")
+
         self.AbcExportLiverpoolMultiple = QPushButton('Export Liverpool Characters')
-        
+        self.AbcExportLiverpoolMultiple.setStyleSheet("background-color: darkCyan")
+
         self.ExportShaders = QPushButton('Open Export Shader Window')
+        self.ExportShaders.setStyleSheet("background-color: darkBlue")
+        self.ExportShaders.setMinimumHeight(50)
+
         self.ImportShaders = QPushButton('Open Import Shader Window')
+        self.ImportShaders.setStyleSheet("background-color: blue")
+        self.ImportShaders.setMinimumHeight(50)
 
         self.AbcExportZafariMultiple = QPushButton('Export Zafari Multiple .abc')
+        self.AbcExportZafariMultiple.setStyleSheet("background-color: darkCyan")
+
         self.AbcImportZafari = QPushButton('Import Zafari Abc to scene')
+        self.AbcImportZafari.setStyleSheet("background-color: darkGreen")
+
         self.ImportZafariShaders = QPushButton('Apply Shaders to Zafari Characters')
+        self.ImportZafariShaders.setStyleSheet("background-color: blue")
+        self.ImportZafariShaders.setMinimumHeight(50)
 
         # self.BuildUvChoosers = QPushButton('Build Uv Choosers')
         self.ApplayShadersToSelectionSets = QPushButton('Connect shaders to selection Sets')
+        self.ApplayShadersToSelectionSets.setStyleSheet("background-color: darkGreen")
+
+        self.CreateFurReferenceObjects = QPushButton('Create Fur Reference Objects')
+        self.CreateFurReferenceObjects.setStyleSheet("background-color: darkMagenta")
+        self.CreateFurReferenceObjects.setMinimumHeight(40)
 
         # line zeparator
+
+        # Labes:
+        self.ExportLabel = QLabel('Export Tools')
+
+        self.ImportLaber = QLabel('Import Tools')
+
+        self.FurUtilsLabel = QLabel('Fur Utils')
+
         self.ZafaryLine = QLine()
         self.ZarayLabel = QLabel('Zafari Assembly')
 
+        
+
         ''' add widgets to layout'''
+        self.VerticalLayout.addWidget(self.ExportLabel)
         self.VerticalLayout.addWidget(self.AbcExportSelectedSingle)
         self.VerticalLayout.addWidget(self.AbcExportSelectedMultiple)
-
+        self.VerticalLayout.addWidget(self.AbcExportLiverpoolMultiple)
         self.VerticalLayout.addWidget(self.ExportShaders)
+
+        self.VerticalLayout.addWidget(self.ImportLaber)
         self.VerticalLayout.addWidget(self.ImportShaders)
         # self.VerticalLayout.addWidget(self.BuildUvChoosers)
-        self.VerticalLayout.addWidget(self.AbcExportLiverpoolMultiple)
         self.VerticalLayout.addWidget(self.ApplayShadersToSelectionSets)
+        
+        self.VerticalLayout.addWidget(self.FurUtilsLabel)
+        self.VerticalLayout.addWidget(self.CreateFurReferenceObjects)
 
         # self.VerticalLayout.addWidget(self.ZafaryLine)
         self.VerticalLayout.addWidget(self.ZarayLabel)
@@ -73,6 +110,8 @@ class Assembly_Controller(QWidget):
         self.TreeWidget.AssignPushButton.clicked.connect(self.ApplyShadersToScene)
 
         self.ExportWidget.ExportButton.clicked.connect(self.ExportShaderNjMap)
+
+        self.CreateFurReferenceObjects.clicked.connect(self.CreateFurReference)
 
         # self.BuildUvChoosers.clicked.connect(self.BuildUvChoosersOnScene)
         self.ApplayShadersToSelectionSets.clicked.connect(self.ApplyShaderToSelectionSetsOnScene)
@@ -292,6 +331,12 @@ class Assembly_Controller(QWidget):
     def ApplyShaderToZafary(self):
         self.mayaUtils.ApplyZafaryShaders()
 
+    def CreateFurReference(self):
+        self.mayaUtils.DisableSkinClusters()
+        self.mayaUtils.DisableBlendShapes()
+        self.mayaUtils.CreateReferenceObject()
+        self.mayaUtils.EnableSkinClusters()
+        self.mayaUtils.EnableBlendShapes()
 
 class ShaderTreeView(QWidget):
 

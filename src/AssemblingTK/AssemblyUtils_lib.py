@@ -194,7 +194,7 @@ class AssemblyUtils():
             return outFile
 
     def ExportFurMap(self, OutPath, OutName):
-        AllFurs = pm.ls(type='pgYetiMaya')
+        AllFurs = self.GetAllPgYetiMaya()
         FurList = {}
         for element in AllFurs:
             FurList[element.name()] = {'Connection':[]}
@@ -240,6 +240,65 @@ class AssemblyUtils():
     def ConnectFurShader(self, SG, FurShape):
         if pm.objExists(SG):
             pm.sets(SG, e=True, forceElement=FurShape)
+
+    def DisableSkinClusters(self):
+        allSkinCluster = pm.ls(type='skinCluster')
+        print allSkinCluster
+        if allSkinCluster:
+            for element in allSkinCluster:
+                element.envelope.set(0)
+
+    def DisableBlendShapes(self):
+        allBlendShapes = pm.ls(type='blendShape')
+        if allBlendShapes:
+            for element in allBlendShapes:
+                element.envelope.set(0)
+
+    def EnableSkinClusters(self):
+        allSkinCluster = pm.ls(type='skinCluster')
+        if allSkinCluster:
+            for element in allSkinCluster:
+                element.envelope.set(1)
+
+    def EnableBlendShapes(self):
+        allBlendShapes = pm.ls(type='blendShape')
+        if allBlendShapes:
+            for element in allBlendShapes:
+                element.envelope.set(1)
+
+    def GetAllPgYetiMaya(self):
+        all = pm.ls(type='pgYetiMaya')
+        # print all
+        if all:
+            return all
+
+    def GetGeoInputFromYetiNode(self, yetiNode):
+        if yetiNode:
+            currentMeshList = yetiNode.listConnections(type='mesh')
+            # print currentMeshList
+            return currentMeshList
+    
+
+    def CreateReferenceObject(self):
+        allFurs = self.GetAllPgYetiMaya()
+        refObjectList = []
+        for element in allFurs:
+            meshConnectionList = self.GetGeoInputFromYetiNode(element)
+            
+            for mesh in meshConnectionList:
+                refObject = pm.duplicate(mesh)[0]
+                refObject.getShape().template.set(1)
+                pm.rename(refObject,'{0}_REFOBJ'.format(mesh.name()))
+
+                pm.connectAttr(refObject.getShape().message, mesh.referenceObject)
+                refObjectList.append(refObject)
+
+        RefObjectHierachy = pm.group(empty=True, name = 'RefenceObjects')
+        RefObjectHierachy.visibility.set(0)
+        for refObj in refObjectList:
+            pm.parent(refObj, RefObjectHierachy)
+
+        print 'Ref Object List is: ', refObjectList
 
     def BuildFur(self,Map, AllShapes):
     
