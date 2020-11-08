@@ -195,27 +195,32 @@ class AssemblyUtils():
 
     def ExportFurMap(self, OutPath, OutName):
         AllFurs = self.GetAllPgYetiMaya()
-        FurList = {}
-        for element in AllFurs:
-            FurList[element.name()] = {'Connection':[]}
-            meshConnections =  element.listConnections(type='mesh', c=True, p=True)
+        if AllFurs:
+            FurList = {}
+            for element in AllFurs:
+                FurList[element.name()] = {'Connection':[]}
+                meshConnections =  element.listConnections(type='mesh', c=True, p=True)
 
-            cacheFile = element.cacheFileName.get()
+                cacheFile = element.cacheFileName.get()
 
-            FurList[element.name()]['CacheFile'] = cacheFile
-            FurList[element.name()]['Shader'] = element.listConnections(type='shadingEngine')[0].name()
+                FurList[element.name()]['CacheFile'] = cacheFile
+                FurList[element.name()]['Shader'] = element.listConnections(type='shadingEngine')[0].name()
 
-            for pair in meshConnections:
+                for pair in meshConnections:
 
-                currentPair = [pair[0].name(),pair[1].name()]
-                FurList[element.name()]['Connection'].append(currentPair)
+                    currentPair = [pair[0].name(),pair[1].name()]
+                    FurList[element.name()]['Connection'].append(currentPair)
 
-        
-        if FurList:
-            furMapName = '{0}.furMap'.format(OutName)
+            
+            if FurList:
+                furMapName = '{0}.furMap'.format(OutName)
 
-            exportMap = self.WriteJson(FurList, OutPath, furMapName)
-            return exportMap
+                exportMap = self.WriteJson(FurList, OutPath, furMapName)
+                return exportMap
+            else:
+                return None
+        else:
+            return None
  
     def CreateYetiNode(self, YetiName, YetiCacheFile):
         CurrentYeti = pm.createNode('pgYetiMaya', name=YetiName)
