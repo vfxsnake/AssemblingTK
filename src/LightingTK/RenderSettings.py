@@ -30,6 +30,8 @@ def RedshiftRender():
     CreatePipelineAOV()
 
     RenderCameraSetings()
+
+    DisableCameraShake()
     
     pm.inViewMessage(amg='<hl>!!!! Redshift Render !!!!</hl>.', pos='midCenter', fade=True)
     
@@ -173,4 +175,8 @@ def CreatePipelineAOV():
     CreateOccutionAOV('Close', 64, 1, 0.5, 1)
     CreateCustomAOV()
 
-
+def DisableCameraShake():
+    allCameras = pm.ls(type='camera')
+    if allCameras:
+        for element in allCameras:
+            element.shakeEnabled.set(0)
