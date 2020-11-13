@@ -94,7 +94,7 @@ class JobWidget():
         ScriptName = self.SceneName.text()
         print 'ScriptName: is', ScriptName
         if ScriptName:
-            for x in range(self.StartFrame.value(), self.EndFrame.value()):
+            for x in range(self.StartFrame.value(), self.EndFrame.value() + 1):
 
                 currentSubmit = ['Nuke10.5.exe', '-x', '-F', '{0}-{1}'.format(x, x) , ScriptName]            
                 self.JobList.append(currentSubmit)
