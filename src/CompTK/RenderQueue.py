@@ -52,14 +52,17 @@ class RenderQueueWindow(QWidget):
         """
         print "Ading Job"
         currentJobName = self.FindNukeScript()
-        if currentJobName[1]:
+        if currentJobName[0]!= '':
             currentJobWidget = JobWidget()
             currentJobWidget.SceneName.setText(currentJobName[0])
             self.JobLayout.addLayout(currentJobWidget.LayoutParent)
             self.JobList.append(currentJobWidget)
+        else:
+            return None
     
     def FindNukeScript(self):
         sourcePath = QFileDialog().getOpenFileName(None, "select Nuke Script", dir='D:\zebratv\Projects\BOLO', selectedFilter="Nuke (*.nk)")
+        print "tupple strig is: ", sourcePath
         if sourcePath:
             print sourcePath
             return sourcePath
@@ -79,7 +82,12 @@ class JobWidget():
         self.SceneName.setText('job Name')
 
         self.StartFrame = QSpinBox()
+        self.StartFrame.setMinimum(0)
+        self.StartFrame.setMaximum(10000)
+
         self.EndFrame = QSpinBox()
+        self.EndFrame.setMaximum(0)
+        self.EndFrame.setMaximum(10000)
         self.Progress = QProgressBar()
         
         self.LayoutParent.addWidget(self.SceneName)
