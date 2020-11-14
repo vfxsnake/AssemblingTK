@@ -262,7 +262,7 @@ def RenderLayerShadow():
         ColectionGeoMesh = RsRenderLayer.createCollection('Characters' + '_' + GetName + '_' + 'COL')
         ColectionCharacter = RsRenderLayer.createCollection('CharacterShadows' + '_' + GetName + '_' + 'COL')
 
-        EnvOverride = ColectionAll.createOverride('EnvOverrideShadow', OpenMaya.MTypeId(0x58000387))#---->MaterialOverride
+        EnvOverride = ColectionAll.createOverride('EnvOverrideShadow', OpenMaya.MTypeId(0x58000386))#---->ShaderOverride
         EnvOverridePy=pm.PyNode("EnvOverrideShadow")
         ShaderEnvGrp= pm.sets(name= "Env_OverrideShadow_SG", empty=True, renderable=True, noSurfaceShader=True)
         ShaderShadow=pm.shadingNode('RedshiftMatteShadowCatcher', name= "Env_OverrideShadow_SH", asShader=True)
