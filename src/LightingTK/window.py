@@ -20,8 +20,8 @@ import os
 
 
 class ImageDialog(QDialog):
-    def __init__(self):
-        QDialog.__init__(self)
+    def __init__(self, parent=None):
+        QDialog.__init__(self,parent)
 
         import Display
 
@@ -110,6 +110,7 @@ class ImageDialog(QDialog):
 
         self.ui.pushButton_FxSettings.setText('Optimize Fur')
         self.ui.pushButton_FxSettings.clicked.connect(RenderSettings.FurShaderTransmisionDisable)
+        self.ui.pushButton_FxSettings.setEnabled(True)
 
         file.close()
 
