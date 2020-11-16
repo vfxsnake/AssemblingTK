@@ -108,6 +108,9 @@ class ImageDialog(QDialog):
         self.ui.pushButton_Animation.clicked.connect(Utilities.GeoBakeAnimation)
         self.ui.pushButton_Transfer.clicked.connect(Utilities.TransferUvs)
 
+        self.ui.pushButton_FxSettings.setText('Optimize Fur')
+        self.ui.pushButton_FxSettings.clicked.connect(RenderSettings.FurShaderTransmisionDisable)
+
         file.close()
 
     def Show(self):

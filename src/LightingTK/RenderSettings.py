@@ -32,6 +32,8 @@ def RedshiftRender():
     RenderCameraSetings()
 
     DisableCameraShake()
+
+    FurShaderTransmisionDisable()
     
     pm.inViewMessage(amg='<hl>!!!! Redshift Render !!!!</hl>.', pos='midCenter', fade=True)
     
@@ -92,40 +94,51 @@ def SetUnifiedSamples():
     rsSettings.attr('unifiedFilterSize').set(3)
 
     rsSettings.attr('primaryGIEngine').set(4)
-    rsSettings.attr('bruteForceGINumRays').set(256)
-    rsSettings.attr('secondaryGIEngine').set(2)
+    rsSettings.attr('bruteForceGINumRays').set(64)
+    rsSettings.attr('secondaryGIEngine').set(0)
+    rsSettings.attr('reflectionMaxTraceDepth').set(2)
+    rsSettings.attr('refractionMaxTraceDepth').set(2)
+    rsSettings.attr('combinedMaxTraceDepth').set(2)
 
 def CreateRedshiftAov(aovType, aovName):
     import maya.mel as mel
-
-    aov = mel.eval('rsCreateAov -n "{0}" -t "{1}" ;'.format(aovName, aovType))
-    if aov:
-        outAov = pm.PyNode(aov)
-        if outAov:
-            mel.eval('redshiftAddAov;')
-            return outAov
+    aovNameExists = pm.objExists(aovName)
+    if not aovNameExists:
+        aov = mel.eval('rsCreateAov -n "{0}" -t "{1}" ;'.format(aovName, aovType))
+        if aov:
+            outAov = pm.PyNode(aov)
+            if outAov:
+                mel.eval('redshiftAddAov;')
+                return outAov
+    else:
+        return None
 
 def CreateCryptosAOV():
     crypto1 = CreateRedshiftAov('Cryptomatte', 'Cryptomatte')
+
     crypto2 = CreateRedshiftAov('Cryptomatte', 'Cryptomatte_Shader')
-    crypto2.attr('name').set('Cryptomatte_Shader')
-    crypto2.attr('idType').set(1)
+    if crypto2:
+        crypto2.attr('name').set('Cryptomatte_Shader')
+        crypto2.attr('idType').set(1)
 
 
 def CreateCustomAOV():
     Specular = CreateRedshiftAov('Specular Lighting', 'SpecularLighting')
-    Specular.allLightGroups.set(1)
+    if Specular:
+        Specular.allLightGroups.set(1)
 
     Diff = CreateRedshiftAov('Diffuse Lighting', 'DiffuseLighting')
-    Diff.allLightGroups.set(1)
+    if Diff:
+        Diff.allLightGroups.set(1)
 
     Refraction = CreateRedshiftAov('Refractions', 'Refractions')
-    Refraction.allLightGroups.set(0)
-    Refraction.globalAov.set(2)
-    try:
-        Refraction.lightGroupList.set('EnvCS')
-    except:
-        pass
+    if Refraction:
+        Refraction.allLightGroups.set(0)
+        Refraction.globalAov.set(2)
+        try:
+            Refraction.lightGroupList.set('EnvCS')
+        except:
+            pass
 
 def CreateOcclutionShader(Name, Samples, Spread, FallOff, maxDistance):
 
@@ -141,11 +154,12 @@ def CreateOcclutionShader(Name, Samples, Spread, FallOff, maxDistance):
 
 def CreateOccutionAOV(Name, Samples, Spread, FallOff, maxDistance):
     aocAov = CreateRedshiftAov('Custom', 'AOC_{0}'.format(Name))
-    aocShader = CreateOcclutionShader(Name, Samples, Spread, FallOff, maxDistance)
-    if aocShader and aocAov:
-        pm.connectAttr(aocShader.outColor, aocAov.defaultShader, force=True)
-        print 'conection done: aocShader.outColor, aocAov.defaultShader'
-        aocAov.attr('name').set('AOC_{0}'.format(Name))
+    if aocAov:
+        aocShader = CreateOcclutionShader(Name, Samples, Spread, FallOff, maxDistance)
+        if aocShader and aocAov:
+            pm.connectAttr(aocShader.outColor, aocAov.defaultShader, force=True)
+            print 'conection done: aocShader.outColor, aocAov.defaultShader'
+            aocAov.attr('name').set('AOC_{0}'.format(Name))
 
 def RenderCameraSetings():
     import pymel.core as pm
@@ -160,8 +174,9 @@ def RenderCameraSetings():
 def CreatePipelineAOV():
 
     beauty = CreateRedshiftAov('Beauty', 'Beauty')
-    beauty.attr('allLightGroups').set(0)
-    beauty.attr('globalAov').set(1)
+    if beauty:
+        beauty.attr('allLightGroups').set(0)
+        beauty.attr('globalAov').set(1)
     CreateRedshiftAov('Depth', 'Z')
     CreateRedshiftAov('Global Illumination', 'GI')
     CreateRedshiftAov('Motion Vectors', 'MotionVectors')
@@ -180,3 +195,9 @@ def DisableCameraShake():
     if allCameras:
         for element in allCameras:
             element.shakeEnabled.set(0)
+
+def FurShaderTransmisionDisable():
+    allFurs = pm.ls(type='RedshiftHair')
+    for element in allFurs:
+        element.trans_weight.set(0)
+        element.diffuse_weight.set(1)
