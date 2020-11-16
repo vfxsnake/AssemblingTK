@@ -7,10 +7,10 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 class Assembly_Controller(QWidget):
-    def __init__(self):
+    def __init__(self,parent=None):
         print 'Initilazing Controller'
     
-        super(Assembly_Controller, self).__init__()
+        super(Assembly_Controller, self).__init__(parent)
 
         # Export Material and shader Widget
         self.ExportWidget = ExportShader()
@@ -340,8 +340,8 @@ class Assembly_Controller(QWidget):
 
 class ShaderTreeView(QWidget):
 
-    def __init__(self):
-        super(ShaderTreeView, self).__init__()
+    def __init__(self, parent=None):
+        super(ShaderTreeView, self).__init__(parent)
 
         self.TreeWidget = QTreeWidget()
         self.TreeWidget.setSelectionMode(QAbstractItemView.MultiSelection)
@@ -367,8 +367,8 @@ class ShaderTreeView(QWidget):
 
 class ExportShader(QWidget):
 
-    def __init__(self):
-        super(ExportShader, self).__init__()
+    def __init__(self,parent=None):
+        super(ExportShader, self).__init__(parent)
 
         self.Marca = QComboBox()
         self.Marca.addItem('Bakugan')
