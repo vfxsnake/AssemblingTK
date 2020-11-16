@@ -179,7 +179,9 @@ def CreatePipelineAOV():
         beauty.attr('globalAov').set(1)
     CreateRedshiftAov('Depth', 'Z')
     CreateRedshiftAov('Global Illumination', 'GI')
-    CreateRedshiftAov('Motion Vectors', 'MotionVectors')
+    motionV = CreateRedshiftAov('Motion Vectors', 'MotionVectors')
+    if motionV:
+        motionV.attr('enabled').set(0) 
     CreateRedshiftAov('Normals', 'N')
     CreateRedshiftAov('Shadows', 'Shadows')
     CreateRedshiftAov('Reflections', 'Reflections')
