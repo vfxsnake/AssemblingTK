@@ -97,7 +97,7 @@ def SetUnifiedSamples():
     rsSettings.attr('bruteForceGINumRays').set(64)
     rsSettings.attr('secondaryGIEngine').set(0)
     rsSettings.attr('reflectionMaxTraceDepth').set(2)
-    rsSettings.attr('refractionMaxTraceDepth').set(2)
+    rsSettings.attr('refractionMaxTraceDepth').set(3)
     rsSettings.attr('combinedMaxTraceDepth').set(2)
 
 def CreateRedshiftAov(aovType, aovName):
