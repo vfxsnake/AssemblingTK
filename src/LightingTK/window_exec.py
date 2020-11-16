@@ -33,7 +33,7 @@ if __name__ == '__main__':
     MayMainWindow = getMayaMainWindow()
 
     #app= QApplication(sys.argv)
-    window = window.ImageDialog()
+    window = window.ImageDialog(MayMainWindow)
     window.Show()
     #sys.exit(app.exec_())
 
