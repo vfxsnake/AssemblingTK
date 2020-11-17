@@ -33,6 +33,7 @@ class ImageDialog(QDialog):
         import Lights
 
         import RenderLayer
+        reload(RenderLayer)
 
         import RenderSettings
         reload(RenderSettings)

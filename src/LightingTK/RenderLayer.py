@@ -264,15 +264,15 @@ def RenderLayerShadow():
 
         EnvOverride = ColectionAll.createOverride('EnvOverrideShadow', OpenMaya.MTypeId(0x58000386))#---->ShaderOverride
         EnvOverridePy=pm.PyNode("EnvOverrideShadow")
-        ShaderEnvGrp= pm.sets(name= "Env_OverrideShadow_SG", empty=True, renderable=True, noSurfaceShader=True)
+        # ShaderEnvGrp= pm.sets(name= "Env_OverrideShadow_SG", empty=True, renderable=True, noSurfaceShader=True)
         ShaderShadow=pm.shadingNode('RedshiftMatteShadowCatcher', name= "Env_OverrideShadow_SH", asShader=True)
 
         #Connect Shader to ShadingGroup
 
-        ShaderShadow.outColor >> ShaderEnvGrp.surfaceShader
+        # ShaderShadow.outColor >> ShaderEnvGrp.surfaceShader
 
         #Connect Material to OverrideRL
-        ShaderEnvGrp.message >> EnvOverridePy.attrValue
+        ShaderShadow.outColor >> EnvOverridePy.attrValue
 
         ##Switch Create RenderLayer
         rs.switchToLayer(RsRenderLayer)
