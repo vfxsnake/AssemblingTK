@@ -46,6 +46,10 @@ class Assembly_Controller(QWidget):
         self.ImportShaders.setStyleSheet("background-color: blue")
         self.ImportShaders.setMinimumHeight(50)
 
+        self.ConectLuciaFur = QPushButton('Connect Lucia Fur')
+        self.ConectLuciaFur.setStyleSheet("background-color: blue")
+
+
         self.AbcExportZafariMultiple = QPushButton('Export Zafari Multiple .abc')
         self.AbcExportZafariMultiple.setStyleSheet("background-color: darkCyan")
 
@@ -87,6 +91,7 @@ class Assembly_Controller(QWidget):
 
         self.VerticalLayout.addWidget(self.ImportLaber)
         self.VerticalLayout.addWidget(self.ImportShaders)
+        self.VerticalLayout.addWidget(self.ConectLuciaFur)
         # self.VerticalLayout.addWidget(self.BuildUvChoosers)
         self.VerticalLayout.addWidget(self.ApplayShadersToSelectionSets)
         
@@ -106,6 +111,7 @@ class Assembly_Controller(QWidget):
 
         self.ExportShaders.clicked.connect(self.OpenShaderExportWidget)
         self.ImportShaders.clicked.connect(self.OpenShaderMapTree)
+        self.ConectLuciaFur.clicked.connect(self.ConnectLuciaFurSys)
 
         self.TreeWidget.AssignPushButton.clicked.connect(self.ApplyShadersToScene)
 
@@ -337,6 +343,9 @@ class Assembly_Controller(QWidget):
         self.mayaUtils.CreateReferenceObject()
         self.mayaUtils.EnableSkinClusters()
         self.mayaUtils.EnableBlendShapes()
+    
+    def ConnectLuciaFurSys(self):
+        self.mayaUtils.BuildLuciaFur()
 
 class ShaderTreeView(QWidget):
 

@@ -1019,11 +1019,12 @@ class AssemblyUtils():
             
             return None
 
+
     def ConnectLuciaBaseMeshesToFurShapes(self, BaseMeshList):
         if BaseMeshList:
             sweaterFur = self.GetLuciaSweaterFur()
             print 'sweaterFur is:', sweaterFur
-
+            BaseGroup = None
             headFur = self.GetLuciaHeadFur()
 
             for element in BaseMeshList:
@@ -1037,16 +1038,20 @@ class AssemblyUtils():
 
                 if 'Lucia_Head_GEOMESHShape' in element.name() and headFur:
                     try:
-                        pm.connectAttr(element.worldMesh[0], headFur.inputGeometry[4])
+                        pm.connectAttr(element.worldMesh[0], headFur.inputGeometry[0])
                         continue
                     except:
                         print 'uanble to connect ', element.name()
+                
+                    BaseGroup = element.getParent().getAllParents()[-1]
+            
+            print BaseGroup
+            return BaseGroup
 
     def CreateLuciaReferenceObject(self, baseMeshList):
 
         refObjectList = []
-        self.DisableBlendShapes()
-        self.DisableSkinClusters
+
             
         for mesh in baseMeshList:
             refObject = pm.duplicate(mesh)[0]
@@ -1055,9 +1060,8 @@ class AssemblyUtils():
 
             pm.connectAttr(refObject.getShape().message, mesh.referenceObject)
             refObjectList.append(refObject)
-        
-        self.EnableBlendShapes()
-        self.EnableSkinClusters()
+
+
 
         RefObjectHierachy = pm.group(empty=True, name = 'Lucia_RefenceObjects')
         RefObjectHierachy.visibility.set(0)
@@ -1065,63 +1069,94 @@ class AssemblyUtils():
             pm.parent(refObj, RefObjectHierachy)
 
         print 'Ref Object List is: ', refObjectList
+        
+        return RefObjectHierachy
+
+    def createCurvesReferenceObject(self, Curves):
+
+        refGroupExists = pm.objExists('Lucia_RefenceObjects')
+        print "lucia ref object: ", refGroupExists
+        for element in Curves:
+            
+            refCurve = pm.duplicate(element)[0]
+            pm.rename(refCurve, '{0}_REFCRV'.format(element.name()))
+            refCurve.getShape().template.set(1)
+            pm.connectAttr(refCurve.getShape().message, element.referenceObject)
+            
+            if refGroupExists:
+                pm.parent(refCurve, 'Lucia_RefenceObjects')
+
 
     def getLuciaFurCurves(self):
         allTrs = pm.ls(type='transform')
-        curveGrp = []
+        LeftSourceCurve = None
+        RightSourceCurve = None
+
+        LeftTargetCurve = None
+        RightTargetCurve = None
         for element in allTrs:
+
+            if ('Lucia_Hair_GEOMESH' in element.name() or 'Lucia_PonyTails_GEOMESH' in element.name() or 'Lucia_Eyebrow_GEOMESH' in element.name()):
+                element.visibility.set(0)
+
             if 'Lucia_trenzaR_Cv' in element.name():
-                curveGrp.append(element)
+                print 'found LuciaTrenza R Cv'
+
+                if not '_Source' in element.name():
+                    RightTargetCurve = element
+                
+                else:
+                    RightSourceCurve = element
             
             if 'Lucia_trenzaL_Cv' in element.name():
-                curveGrp.append(element)
-        
-        if curveGrp:
-            return curveGrp
+                print 'found LuciaTrenza L Cv'
+                if not '_Source' in element.name():
+                    LeftTargetCurve = element
+                
+                else:
+                    LeftSourceCurve = element
 
-        else:
-            return None
+        if LeftSourceCurve and LeftTargetCurve:
+            blendL = pm.blendShape(LeftTargetCurve, LeftSourceCurve,tc=0)
+            pm.blendShape(blendL, edit=True, w=[0,1])
+
+        if RightSourceCurve and RightTargetCurve:
+            blendR = pm.blendShape(RightTargetCurve, RightSourceCurve,tc=0)
+            pm.blendShape(blendR, edit=True, w=[0,1])
     
-    def getPgYetiBraids(self):
-        allBraids = pm.ls(type='pgYetiMayaBraid')
-        return allBraids
+        if RightSourceCurve:
+            CurveGroup = RightSourceCurve.getAllParents()[-1]
+            return CurveGroup
 
-    def getLeftBraids(self, braids):
-        leftBraids = []
-        for element in braids:
-            if 'lucia_trenza_L' in element.name():
-                leftBraids.append(element)
-        
-        return leftBraids
 
-    def getRightBraids(self, braids):
-        rightBraids = []
-        for element in braids:
-            if 'lucia_trenza_R' in element.name():
-                rightBraids.append(element)
-        
-        return rightBraids
-
+    def DisableDisplayOverrides(self):
+        allTrs = pm.ls(type='transform')
+        for element in allTrs:
+            try:
+                element.overrideEnabled.set(0)
+            except:
+                print 'unable to disable display override in:', element.name()
     def BuildLuciaFur(self):
+        self.DisableDisplayOverrides()
+
         baseMeshes = self.FindLuciaFurBaseMeshes()
+        self.DisableBlendShapes()
+        self.DisableSkinClusters()
         if baseMeshes:
             if self.ImportLuciaFur():
-                self.ConnectLuciaBaseMeshesToFurShapes(baseMeshes)
-                self.CreateLuciaReferenceObject(baseMeshes)
-                curves = self.getLuciaFurCurves()
-                if curves:
-                    braids = self.getPgYetiBraids()
-                    if braids:
-                        leftBraids = self.getLeftBraids(braids)
-                        rightBraids = self.getRightBraids(braids)
+                
+                parentGrp = self.ConnectLuciaBaseMeshesToFurShapes(baseMeshes)
+                print 'paretn grp is:', parentGrp
 
-                        for item in curves:
-                            for l in leftBraids:
-                                if 'trenzaR' in item.name():
-                                    pm.connectAttr(item.worldSpace[0], l.inputCurve)
-                            for R in rightBraids:
-                                if 'trenzaL' in item.name():
-                                    pm.connectAttr(item.worldSpace[0], R.inputCurve)
+                refObjects = self.CreateLuciaReferenceObject(baseMeshes)
+                print 'refObjects: ', refObjects
 
-                                
-                            
+                sourceCurveGrp = self.getLuciaFurCurves()
+                print 'source curve Grp:', sourceCurveGrp
+
+                if parentGrp and refObjects and sourceCurveGrp:
+                    pm.parent(refObjects, parentGrp)
+                    pm.parent(sourceCurveGrp, parentGrp)
+
+        self.EnableBlendShapes()
+        self.EnableSkinClusters()
