@@ -959,9 +959,169 @@ class AssemblyUtils():
                         self.ImportShadersToZafari(ZafariCharacters[character]['map'], hierarchy, importShaders)
                         importShaders = False
 
-    def ExportLiverpoolCache(self):
+    # def ExportLiverpoolCache(self):
 
-        transforms = self.GetByType('transform')
-        for element in transforms:
-            if '_GEO' in element.name() and not element.getShape():
-                print element
+    #     transforms = self.GetByType('transform')
+    #     for element in transforms:
+    #         if '_GEO' in element.name() and not element.getShape():
+    #             print element
+
+    def ImportLuciaFur(self):
+        sourceFile = 'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Liverpool/Lucia_Fur_Source.mb'
+        if self.FileExists(sourceFile):
+            self.ImportFile(sourceFile)
+            return True
+        else:
+            return False
+    
+
+    def FindLuciaFurBaseMeshes(self):
+        sceneRoots = self.GetRootGrps()
+        if sceneRoots:
+            geoBase = []
+            for rootGrp in sceneRoots:
+                
+                if 'Lucia' in rootGrp.name() :
+                    print 'Lucia Root GRP : ', rootGrp.name() 
+                    allMeshes = self.GetMeshFromGroup(rootGrp)
+                    print 'all meshes inside Lucia grp: ', allMeshes
+                    if allMeshes:
+                        for mesh in allMeshes:
+                            if ( 'Lucia_Head_GEOMESH' in mesh.name() or 'Lucia_Sweater_GEOMESH' in mesh.name() ):
+                                if not 'Orig' in mesh.name():
+                                    geoBase.append(mesh)
+            
+            if geoBase:
+                print  'Geo Base is:', geoBase
+                return geoBase
+    
+    def GetLuciaSweaterFur(self):
+        allFurs = pm.ls(type='pgYetiMaya')
+        print 'all pg yeti mayas for find sweater is', allFurs
+        if allFurs:
+            for element in allFurs:
+                print 'elemen name in all fur for swater:', element.name()
+                if 'Lucia_Sweater_FIBER' in element.name():
+                    print 'found sweater fur:' , element.name()
+                    return element
+                else:
+                    continue
+            return None
+    
+    def GetLuciaHeadFur(self):
+        allFurs = pm.ls(type='pgYetiMaya')
+        if allFurs:
+            for element in allFurs:
+                if 'Lucia_Head_FIBER' in element.name():
+                    return element
+                else:
+                    continue
+            
+            return None
+
+    def ConnectLuciaBaseMeshesToFurShapes(self, BaseMeshList):
+        if BaseMeshList:
+            sweaterFur = self.GetLuciaSweaterFur()
+            print 'sweaterFur is:', sweaterFur
+
+            headFur = self.GetLuciaHeadFur()
+
+            for element in BaseMeshList:
+                print 'Base Mesh list current element is:', element.name()
+
+                if 'Lucia_Sweater_GEOMESHShape' in element.name()  and sweaterFur :
+                    print 'foune sweater mesh', element.name()
+                    pm.connectAttr(element.worldMesh[0], sweaterFur.inputGeometry[0])
+                    print 'attr connected  worldmesh to imput geomtry', element.name(), sweaterFur.name() 
+                    continue
+
+                if 'Lucia_Head_GEOMESHShape' in element.name() and headFur:
+                    try:
+                        pm.connectAttr(element.worldMesh[0], headFur.inputGeometry[4])
+                        continue
+                    except:
+                        print 'uanble to connect ', element.name()
+
+    def CreateLuciaReferenceObject(self, baseMeshList):
+
+        refObjectList = []
+        self.DisableBlendShapes()
+        self.DisableSkinClusters
+            
+        for mesh in baseMeshList:
+            refObject = pm.duplicate(mesh)[0]
+            refObject.getShape().template.set(1)
+            pm.rename(refObject,'{0}_REFOBJ'.format(mesh.name()))
+
+            pm.connectAttr(refObject.getShape().message, mesh.referenceObject)
+            refObjectList.append(refObject)
+        
+        self.EnableBlendShapes()
+        self.EnableSkinClusters()
+
+        RefObjectHierachy = pm.group(empty=True, name = 'Lucia_RefenceObjects')
+        RefObjectHierachy.visibility.set(0)
+        for refObj in refObjectList:
+            pm.parent(refObj, RefObjectHierachy)
+
+        print 'Ref Object List is: ', refObjectList
+
+    def getLuciaFurCurves(self):
+        allTrs = pm.ls(type='transform')
+        curveGrp = []
+        for element in allTrs:
+            if 'Lucia_trenzaR_Cv' in element.name():
+                curveGrp.append(element)
+            
+            if 'Lucia_trenzaL_Cv' in element.name():
+                curveGrp.append(element)
+        
+        if curveGrp:
+            return curveGrp
+
+        else:
+            return None
+    
+    def getPgYetiBraids(self):
+        allBraids = pm.ls(type='pgYetiMayaBraid')
+        return allBraids
+
+    def getLeftBraids(self, braids):
+        leftBraids = []
+        for element in braids:
+            if 'lucia_trenza_L' in element.name():
+                leftBraids.append(element)
+        
+        return leftBraids
+
+    def getRightBraids(self, braids):
+        rightBraids = []
+        for element in braids:
+            if 'lucia_trenza_R' in element.name():
+                rightBraids.append(element)
+        
+        return rightBraids
+
+    def BuildLuciaFur(self):
+        baseMeshes = self.FindLuciaFurBaseMeshes()
+        if baseMeshes:
+            if self.ImportLuciaFur():
+                self.ConnectLuciaBaseMeshesToFurShapes(baseMeshes)
+                self.CreateLuciaReferenceObject(baseMeshes)
+                curves = self.getLuciaFurCurves()
+                if curves:
+                    braids = self.getPgYetiBraids()
+                    if braids:
+                        leftBraids = self.getLeftBraids(braids)
+                        rightBraids = self.getRightBraids(braids)
+
+                        for item in curves:
+                            for l in leftBraids:
+                                if 'trenzaR' in item.name():
+                                    pm.connectAttr(item.worldSpace[0], l.inputCurve)
+                            for R in rightBraids:
+                                if 'trenzaL' in item.name():
+                                    pm.connectAttr(item.worldSpace[0], R.inputCurve)
+
+                                
+                            
