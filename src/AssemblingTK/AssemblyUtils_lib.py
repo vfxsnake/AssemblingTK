@@ -1159,13 +1159,19 @@ class AssemblyUtils():
         self.EnableSkinClusters()
 
     def GetSantaRigCurves(self):
-        AllTrs = pm.ls(type='transform')
-        SantaCurves = None
-        for element in AllTrs:
-            if 'SnataCurves' in element.name():
-                SantaCurves = element.name()
-                return SantaCurves
-    
+        
+        sceneRoots = self.GetRootGrps()
+        if sceneRoots:
+            geoBase = []
+            
+            for rootGrp in sceneRoots:
+
+                if 'Santa' in rootGrp.name():
+                    
+                    relatives = rootGrp.listRelatives()
+                    for element in relatives:
+                        if 'Curves_Fur' in element.name():
+                            return element
         return None
 
     def GetSantaFurBaseMeshes(self):
@@ -1174,22 +1180,68 @@ class AssemblyUtils():
             geoBase = []
             for rootGrp in sceneRoots:
                 
-                if 'Santa' in rootGrp.name() :
-                    print 'Santa Root GRP : ', rootGrp.name() 
+                if 'Santa' in rootGrp.name():
+
                     allMeshes = self.GetMeshFromGroup(rootGrp)
-                    print 'all meshes inside Santa grp: ', allMeshes
+
                     if allMeshes:
                         for mesh in allMeshes:
-                            if ( 'Santa_Head_GEOMESH' in mesh.name() or 'Santa_Sweater_GEOMESH' in mesh.name() ): ## ToDo change the name for santas
-                                if not 'Orig' in mesh.name():
+                            if ( 'Santa_Head_GEOMESH' in mesh.name() or 'Santa_Hat_GEOMESH' in mesh.name() or
+                                'Santa_Collar_GEOMESH' in mesh.name() or 'Santa_Coat_GEOMESH' in mesh.name() or
+                                'Santa_Trousers_GEOMESH' in mesh.name()): 
+                                
+                                if not ('Orig' in mesh.name() or 'BT2Shape' in mesh.name() or 
+                                'santa_blendPack' in mesh.name() or 'Santa_Trousers_GEOMESH1' in mesh.name() ):
                                     geoBase.append(mesh)
             
             if geoBase:
-                print  'Geo Base is:', geoBase
+
                 return geoBase
 
-    def ConnectSantaBaseMeshesToFurShapes(self):
-        pass
+    def ConnectSantaBaseMeshesToFurShapes(self, BaseMeses):
+        for element in BaseMeses:
+            if 'Santa_Hat_GEOMESH' in element.name():
+                pm.connectAttr(element.worldMesh[0], 'Santa_Hat_FIBERShape.inputGeometry[0]')
+            
+            if 'Santa_Head_GEOMESH' in element.name():
+                pm.connectAttr(element.worldMesh[0], 'Santa_Face_FIBERShape.inputGeometry[0]')
+
+            if 'Santa_Collar_GEOMESH' in element.name():
+                pm.connectAttr(element.worldMesh[0], 'Santa_Collar_FIBERShape.inputGeometry[0]')
+            
+            if 'Santa_Coat_GEOMESH' in element.name():
+                try:
+                    pm.connectAttr(element.worldMesh[0], 'Santa_Body_FIBERShape.inputGeometry[0]')
+                except:
+                    pass
+
+            if 'Santa_Trousers_GEOMESH' in element.name():
+                pm.connectAttr(element.worldMesh[0], 'Santa_Legs_FIBERShape.inputGeometry[0]')
+
+
+
+    def GetSantaSourceCourves(self):
+        sceneRoots = self.GetRootGrps()
+        if sceneRoots:
+            for element in sceneRoots:
+                if 'Santa_Fur_Source' in element.name():
+                    relatives = element.listRelatives()
+                    for rel in relatives:
+                        if 'Santa_Curves_Fur' in rel.name():
+                            return rel
+        return None
+
+    def HideSantaFeatures(self):
+        all = pm.ls(type='transform')
+        for element in all:
+            if ('Santa_Eyebrows_GEOMESH' in element.name() or 'Santa_Sideburns_GEOMESH' in element.name() or 
+                'Santa_Beard_GEOMESH' in element.name() or 'Santa_Moustache_GEOMESH' in element.name()):
+                element.visibility.set(0)
+
+    def BlenshapeCurve(self, sourceCurvers, TargetCourves):
+        blend = pm.blendShape(TargetCourves, sourceCurvers,tc=0)
+        pm.blendShape(blend, edit=True, w=[0,1])
+
 
     def ImportSantaFur(self):
         sourceFile = 'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Liverpool/Santa_Fur_Source.mb'
@@ -1199,16 +1251,48 @@ class AssemblyUtils():
         else:
             return False
 
+    def CreateSantaReferenceObject(self, baseMeshList):
+
+        refObjectList = []
+
+        for mesh in baseMeshList:
+            refObject = pm.duplicate(mesh)[0]
+            refObject.getShape().template.set(1)
+            pm.rename(refObject,'{0}_REFOBJ'.format(mesh.name()))
+
+            pm.connectAttr(refObject.getShape().message, mesh.referenceObject)
+            refObjectList.append(refObject)
+
+        RefObjectHierachy = pm.group(empty=True, name = 'Santa_RefenceObjects')
+        RefObjectHierachy.visibility.set(0)
+        for refObj in refObjectList:
+            pm.parent(refObj, RefObjectHierachy)
+
+        print 'Ref Object List is: ', refObjectList
+        
+        return RefObjectHierachy
+
     def BuildSantaFurSys(self):
         self.DisableDisplayOverrides()
         baseMeshes = self.GetSantaFurBaseMeshes()
-        santaCurves = self.GetSantaRigCurves()
 
+        santaCurves = self.GetSantaRigCurves()
+        print 'santacurves grp is:', santaCurves
         self.DisableBlendShapes()
         self.DisableSkinClusters()
 
         if baseMeshes and santaCurves:
-
-
+            print "BaserMehs and snataCurvers",baseMeshes, santaCurves
+            print 'importing Santa'
+            furImported = self.ImportSantaFur()
+            if furImported:
+                SourceCurvers = self.GetSantaSourceCourves()
+                
+                if SourceCurvers:
+                    self.ConnectSantaBaseMeshesToFurShapes(baseMeshes)
+                    self.CreateSantaReferenceObject(baseMeshes)
+                    self.BlenshapeCurve(SourceCurvers, santaCurves)
+        
         self.EnableBlendShapes()
         self.EnableSkinClusters()
+        self.HideSantaFeatures()

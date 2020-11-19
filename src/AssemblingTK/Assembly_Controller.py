@@ -49,6 +49,8 @@ class Assembly_Controller(QWidget):
         self.ConectLuciaFur = QPushButton('Connect Lucia Fur')
         self.ConectLuciaFur.setStyleSheet("background-color: blue")
 
+        self.ConnectSantaFur = QPushButton('Connect Santa fur')
+        self.ConnectSantaFur.setStyleSheet("background-color: red")
 
         self.AbcExportZafariMultiple = QPushButton('Export Zafari Multiple .abc')
         self.AbcExportZafariMultiple.setStyleSheet("background-color: darkCyan")
@@ -92,6 +94,7 @@ class Assembly_Controller(QWidget):
         self.VerticalLayout.addWidget(self.ImportLaber)
         self.VerticalLayout.addWidget(self.ImportShaders)
         self.VerticalLayout.addWidget(self.ConectLuciaFur)
+        self.VerticalLayout.addWidget(self.ConnectSantaFur)
         # self.VerticalLayout.addWidget(self.BuildUvChoosers)
         self.VerticalLayout.addWidget(self.ApplayShadersToSelectionSets)
         
@@ -112,7 +115,7 @@ class Assembly_Controller(QWidget):
         self.ExportShaders.clicked.connect(self.OpenShaderExportWidget)
         self.ImportShaders.clicked.connect(self.OpenShaderMapTree)
         self.ConectLuciaFur.clicked.connect(self.ConnectLuciaFurSys)
-
+        self.ConnectSantaFur.clicked.connect(self.ConnectSantaFurSys)
         self.TreeWidget.AssignPushButton.clicked.connect(self.ApplyShadersToScene)
 
         self.ExportWidget.ExportButton.clicked.connect(self.ExportShaderNjMap)
@@ -346,6 +349,9 @@ class Assembly_Controller(QWidget):
     
     def ConnectLuciaFurSys(self):
         self.mayaUtils.BuildLuciaFur()
+
+    def ConnectSantaFurSys(self):
+        self.mayaUtils.BuildSantaFurSys()
 
 class ShaderTreeView(QWidget):
 
