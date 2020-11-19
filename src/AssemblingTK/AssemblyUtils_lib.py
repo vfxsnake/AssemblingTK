@@ -974,7 +974,6 @@ class AssemblyUtils():
         else:
             return False
     
-
     def FindLuciaFurBaseMeshes(self):
         sceneRoots = self.GetRootGrps()
         if sceneRoots:
@@ -1159,4 +1158,57 @@ class AssemblyUtils():
         self.EnableBlendShapes()
         self.EnableSkinClusters()
 
+    def GetSantaRigCurves(self):
+        AllTrs = pm.ls(type='transform')
+        SantaCurves = None
+        for element in AllTrs:
+            if 'SnataCurves' in element.name():
+                SantaCurves = element.name()
+                return SantaCurves
     
+        return None
+
+    def GetSantaFurBaseMeshes(self):
+        sceneRoots = self.GetRootGrps()
+        if sceneRoots:
+            geoBase = []
+            for rootGrp in sceneRoots:
+                
+                if 'Santa' in rootGrp.name() :
+                    print 'Santa Root GRP : ', rootGrp.name() 
+                    allMeshes = self.GetMeshFromGroup(rootGrp)
+                    print 'all meshes inside Santa grp: ', allMeshes
+                    if allMeshes:
+                        for mesh in allMeshes:
+                            if ( 'Santa_Head_GEOMESH' in mesh.name() or 'Santa_Sweater_GEOMESH' in mesh.name() ): ## ToDo change the name for santas
+                                if not 'Orig' in mesh.name():
+                                    geoBase.append(mesh)
+            
+            if geoBase:
+                print  'Geo Base is:', geoBase
+                return geoBase
+
+    def ConnectSantaBaseMeshesToFurShapes(self):
+        pass
+
+    def ImportSantaFur(self):
+        sourceFile = 'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Liverpool/Santa_Fur_Source.mb'
+        if self.FileExists(sourceFile):
+            self.ImportFile(sourceFile)
+            return True
+        else:
+            return False
+
+    def BuildSantaFurSys(self):
+        self.DisableDisplayOverrides()
+        baseMeshes = self.GetSantaFurBaseMeshes()
+        santaCurves = self.GetSantaRigCurves()
+
+        self.DisableBlendShapes()
+        self.DisableSkinClusters()
+
+        if baseMeshes and santaCurves:
+
+
+        self.EnableBlendShapes()
+        self.EnableSkinClusters()
