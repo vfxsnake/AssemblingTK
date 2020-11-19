@@ -1019,7 +1019,6 @@ class AssemblyUtils():
             
             return None
 
-
     def ConnectLuciaBaseMeshesToFurShapes(self, BaseMeshList):
         if BaseMeshList:
             sweaterFur = self.GetLuciaSweaterFur()
@@ -1086,7 +1085,6 @@ class AssemblyUtils():
             if refGroupExists:
                 pm.parent(refCurve, 'Lucia_RefenceObjects')
 
-
     def getLuciaFurCurves(self):
         allTrs = pm.ls(type='transform')
         LeftSourceCurve = None
@@ -1128,7 +1126,6 @@ class AssemblyUtils():
             CurveGroup = RightSourceCurve.getAllParents()[-1]
             return CurveGroup
 
-
     def DisableDisplayOverrides(self):
         allTrs = pm.ls(type='transform')
         for element in allTrs:
@@ -1136,6 +1133,7 @@ class AssemblyUtils():
                 element.overrideEnabled.set(0)
             except:
                 print 'unable to disable display override in:', element.name()
+    
     def BuildLuciaFur(self):
         self.DisableDisplayOverrides()
 
@@ -1160,3 +1158,5 @@ class AssemblyUtils():
 
         self.EnableBlendShapes()
         self.EnableSkinClusters()
+
+    
