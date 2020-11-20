@@ -78,6 +78,26 @@ def matchFrameRange():
                     element.knob('last').setValue(start)
                     element.knob('origlast').setValue(start)
                     
+def SwitchExtension(Extension):
+    selectedNodes = nuke.GetSelectedNodes('Read')
+    if selectedNodes:
+        for node in selectedNodes:
+            filePath = node.knob('file').value()
+
+            if not ('Crypto' in filePath):
+                splitPath = filePath.split('.')
+                splitPath[-1] = Extension
+                newExtension = '.'.join(splitPath)
+                node.knob('file').setValue(newExtension)
+                
+
+def switchToPng():
+    SwitchExtension('png')
+
+def switchToExr():
+    SwitchExtension('exr') 
+
+def SwitchToExr
 
 def RepathRun():
     getNewPath()
