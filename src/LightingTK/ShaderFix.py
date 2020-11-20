@@ -119,21 +119,21 @@ def FixChucho(ElveGrp):
         EnableSkinClusters()
 
         pm.select(clear=True)
-
-
-        
         EnableBlendShapes()
         EnableSkinClusters()
 
 def FixElves():
     roots = GetRoots()
+    print roots
     elves = FindLiverpoolElves(roots)
     if not elves:
         for grp in roots:
-            if 'Characters':
+            print 'current grp is', grp.name()
+            if 'Characters' in grp.name():
+                
                 relatives = GetRelatives(grp)
                 elves = FindLiverpoolElves(relatives)
-    
+    print ' elves done:', elves
     if elves:
         for element in elves:
             if 'Ema' in element.name():
