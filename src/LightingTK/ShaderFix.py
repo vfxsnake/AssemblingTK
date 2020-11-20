@@ -108,7 +108,7 @@ def FixChucho(ElveGrp):
 
         if ChuchoHairAnim:
             import maya.mel as mel
-            pm.select(clear=true)
+            pm.select(clear=True)
 
             pm.select('Chucho_Hair_GEOMESH_Target', tgl=True)
             pm.select(ChuchoHairAnim, tgl=True)
