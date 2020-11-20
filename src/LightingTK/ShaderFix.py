@@ -148,6 +148,9 @@ def FixElves():
             if 'Edu' in element.name():
                 FixElve(element, 'Edu_GEOHAIR', 'Edu_Hair', 'Edu_GeoHairFix_SG')
             
+            if 'Chucho' in element.name():
+                FixChucho()
+            
 
 def setMaxSubdivToMicrofono():
     pass
