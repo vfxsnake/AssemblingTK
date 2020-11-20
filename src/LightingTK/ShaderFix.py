@@ -86,7 +86,7 @@ def FixElve(ElveGrp, SceneFixName, Token, SG):
             if Token in mesh.name():
                 connectShadigGroup(SG, mesh)
 
-def FixChucho():
+def FixChucho(ElveGrp):
     if ElveGrp:
         shaderFile = 'D:/zebratv/Projects/BOLO/software/AssemblingTK/src/Resources/{0}.mb'.format('Chucho_GEOHAIR')
         ImportFixScene(shaderFile)
@@ -149,7 +149,7 @@ def FixElves():
                 FixElve(element, 'Edu_GEOHAIR', 'Edu_Hair', 'Edu_GeoHairFix_SG')
             
             if 'Chucho' in element.name():
-                FixChucho()
+                FixChucho(element)
             
 
 def setMaxSubdivToMicrofono():
