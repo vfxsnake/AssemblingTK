@@ -1218,8 +1218,6 @@ class AssemblyUtils():
             if 'Santa_Trousers_GEOMESH' in element.name():
                 pm.connectAttr(element.worldMesh[0], 'Santa_Legs_FIBERShape.inputGeometry[0]')
 
-
-
     def GetSantaSourceCourves(self):
         sceneRoots = self.GetRootGrps()
         if sceneRoots:
@@ -1241,7 +1239,6 @@ class AssemblyUtils():
     def BlenshapeCurve(self, sourceCurvers, TargetCourves):
         blend = pm.blendShape(TargetCourves, sourceCurvers,tc=0)
         pm.blendShape(blend, edit=True, w=[0,1])
-
 
     def ImportSantaFur(self):
         sourceFile = 'D:/zebratv/Projects/BOLO/editorial/incoming/shaders/Liverpool/Santa_Fur_Source.mb'
