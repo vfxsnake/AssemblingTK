@@ -79,7 +79,7 @@ def matchFrameRange():
                     element.knob('origlast').setValue(start)
                     
 def SwitchExtension(Extension):
-    selectedNodes = nuke.GetSelectedNodes('Read')
+    selectedNodes = nuke.selectedNodes('Read')
     if selectedNodes:
         for node in selectedNodes:
             filePath = node.knob('file').value()
@@ -97,7 +97,6 @@ def switchToPng():
 def switchToExr():
     SwitchExtension('exr') 
 
-def SwitchToExr
 
 def RepathRun():
     getNewPath()
