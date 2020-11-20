@@ -80,7 +80,7 @@ def FixElve(ElveGrp, SceneFixName, Token, SG):
         shaderFile = 'D:/zebratv/Projects/BOLO/software/AssemblingTK/src/Resources/{0}.mb'.format(SceneFixName)
         ImportFixScene(shaderFile)
 
-        meshes = ElveGrp.listRelatives(ad=True, type='mehs')
+        meshes = ElveGrp.listRelatives(ad=True, type='mesh')
         for mesh in meshes:
             
             if Token in mesh.name():
@@ -94,7 +94,7 @@ def FixChucho():
         DisableBlendShapes()
         DisableSkinClusters()
 
-        meshes = ElveGrp.listRelatives(ad=True, type='mehs')
+        meshes = ElveGrp.listRelatives(ad=True, type='mesh')
         
         ChuchoHairAnim = None
 
@@ -102,7 +102,7 @@ def FixChucho():
             
             if 'Chucho_Hair_GEOMESHShape' in mesh.name():
                 connectShadigGroup('Chucho_GeoHairFix_SG', mesh)
-                ChuchoHairAnim = mehs
+                ChuchoHairAnim = mesh
             if 'Chucho_Eyebrows_GEOMESHShape' in mesh.name():
                 connectShadigGroup('Chucho_CejasFix_SG', mesh)
 
