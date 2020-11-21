@@ -35,6 +35,9 @@ class ImageDialog(QDialog):
         import RenderLayer
         reload(RenderLayer)
 
+        import ShaderFix
+        reload(ShaderFix)
+
         import RenderSettings
         reload(RenderSettings)
 
@@ -70,7 +73,7 @@ class ImageDialog(QDialog):
         self.ui.pushButton_FurDensity50.clicked.connect(Fur.FurDensity50)
         self.ui.pushButton_FurDensity10.clicked.connect(Fur.FurDensity10)
         self.ui.pushButton_CheckFur.clicked.connect(Fur.YetiCheckFur)
-
+        self.ui.FixElves_pushButton.clicked.connect(ShaderFix.FixElves)
         self.ui.pushButton_LocatorConstraint.clicked.connect(Lights.pointToLocator)
 
         LightRigFiles = os.listdir('D:\zebratv\Projects\BOLO\editorial\incoming\LightRigs\Environments/')

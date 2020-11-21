@@ -23,7 +23,7 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="enabled">
       <bool>true</bool>
@@ -1519,6 +1519,13 @@
      </property>
      <property name="text">
       <string>Redshift</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="FixElves_pushButton">
+     <property name="text">
+      <string>Fix Elfos</string>
      </property>
     </widget>
    </item>
