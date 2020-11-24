@@ -52,6 +52,9 @@ class Assembly_Controller(QWidget):
         self.ConnectSantaFur = QPushButton('Connect Santa fur')
         self.ConnectSantaFur.setStyleSheet("background-color: red")
 
+        self.ConnectBabyEtapa2Fur  = QPushButton('Connect Baby Etapa2 Fur')
+        self.ConnectBabyEtapa2Fur.setStyleSheet("background-color: darkBlue")
+
         self.AbcExportZafariMultiple = QPushButton('Export Zafari Multiple .abc')
         self.AbcExportZafariMultiple.setStyleSheet("background-color: darkCyan")
 
@@ -95,6 +98,7 @@ class Assembly_Controller(QWidget):
         self.VerticalLayout.addWidget(self.ImportShaders)
         self.VerticalLayout.addWidget(self.ConectLuciaFur)
         self.VerticalLayout.addWidget(self.ConnectSantaFur)
+        self.VerticalLayout.addWidget(self.ConnectBabyEtapa2Fur)
         # self.VerticalLayout.addWidget(self.BuildUvChoosers)
         self.VerticalLayout.addWidget(self.ApplayShadersToSelectionSets)
         
@@ -116,6 +120,7 @@ class Assembly_Controller(QWidget):
         self.ImportShaders.clicked.connect(self.OpenShaderMapTree)
         self.ConectLuciaFur.clicked.connect(self.ConnectLuciaFurSys)
         self.ConnectSantaFur.clicked.connect(self.ConnectSantaFurSys)
+        self.ConnectBabyEtapa2Fur.clicked.connect(self.ConnectBabyEtapa2FurSys)
         self.TreeWidget.AssignPushButton.clicked.connect(self.ApplyShadersToScene)
 
         self.ExportWidget.ExportButton.clicked.connect(self.ExportShaderNjMap)
@@ -352,6 +357,10 @@ class Assembly_Controller(QWidget):
 
     def ConnectSantaFurSys(self):
         self.mayaUtils.BuildSantaFurSys()
+
+    def ConnectBabyEtapa2FurSys(self):
+        self.mayaUtils.BuildBabyEtapa2FurSys()
+
 
 class ShaderTreeView(QWidget):
 
