@@ -1287,7 +1287,6 @@ class AssemblyUtils():
         self.EnableSkinClusters()
         self.HideSantaFeatures()
 
-
     def importBabyEtapa2(self):
         sourceFile = 'D:/zebratv/Projects/BOLO/software/AssemblingTK/src/Resources/Baby_Etapa2_Fur_Source.mb'
         if self.FileExists(sourceFile):
@@ -1295,7 +1294,6 @@ class AssemblyUtils():
             return True
         else:
             return False
-
 
     def FindEtapa2Curves(self):
         sceneRoots = self.GetRootGrps()
@@ -1324,7 +1322,6 @@ class AssemblyUtils():
                     for elemen in geoRelatives:
                         if 'BlondeBabyEtapa2_Hair_GEOMESH' in elemen.name():
                             return elemen
-
 
     def ConnectGeoToFurEtapa2(self, hairGeo):
         self.DisableBlendShapes()
@@ -1359,3 +1356,72 @@ class AssemblyUtils():
             self.BlenshapeCurve('BlondeBabyEtapa2_Curves_Hair_Source', etapa2Curves)
             self.ConnectGeoToFurEtapa2(hairGeo)
         
+
+    def importBabyEtapa3(self):
+        sourceFile = 'D:/zebratv/Projects/BOLO/software/AssemblingTK/src/Resources/Baby_Etapa3_Fur_Source.mb'
+        if self.FileExists(sourceFile):
+            self.ImportFile(sourceFile)
+            return True
+        else:
+            return False
+
+    def FindEtapa3Curves(self):
+        sceneRoots = self.GetRootGrps()
+        print 'sceneRoots:', sceneRoots
+        if sceneRoots:            
+            for rootGrp in sceneRoots:
+
+                if 'BlondeBabyEtapa3' in rootGrp.name():
+                    print 'blode etapa 3 found', rootGrp.name()
+                    
+                    relatives = rootGrp.listRelatives(ad=True)
+                    for element in relatives:
+                    
+                        if 'BlondeBabyEtapa3_Curves_Hair' in element.name():
+                            print 'Curves Found', element.name()        
+                            return element
+        return None
+    
+    def FindEtapa3HairGeo(self):
+        sceneRoots = self.GetRootGrps()
+        print 'sceneRoots:', sceneRoots
+        if sceneRoots:            
+            for rootGrp in sceneRoots:
+                if 'BlondeBabyEtapa3' in rootGrp.name():
+                    geoRelatives = rootGrp.listRelatives(ad=True, type='transform')
+                    for elemen in geoRelatives:
+                        if 'BlondeBabyEtapa3_Hair_GEOMESH' in elemen.name():
+                            return elemen
+
+    def ConnectGeoToFurEtapa3(self, hairGeo):
+        self.DisableBlendShapes()
+        self.DisableSkinClusters()
+        
+        print 'etapa3 hair shape is:', hairGeo
+        if hairGeo:
+            pm.connectAttr(hairGeo.worldMesh[0], 'BlondeBabyEtapa3_Hair_FIBERShape.inputGeometry[0]')
+            
+            refObject = pm.duplicate(hairGeo)[0]
+            refObject.getShape().template.set(1)
+            pm.rename(refObject,'{0}_REFOBJ'.format(hairGeo.name()))
+
+            pm.connectAttr(refObject.getShape().message, hairGeo.referenceObject)
+            
+            RefObjectHierachy = pm.group(empty=True, name = 'BabyEtapa3_RefenceObjects')
+            RefObjectHierachy.visibility.set(0)
+        
+            pm.parent(refObject, RefObjectHierachy)
+
+
+        
+        self.EnableBlendShapes()
+        self.EnableSkinClusters()
+
+    def BuildBabyEtapa3FurSys(self):
+        etapa3Curves = self.FindEtapa3Curves()
+        hairGeo = self.FindEtapa3HairGeo()
+        print 'hair geo y curvas:', hairGeo, etapa3Curves
+        if etapa3Curves and hairGeo:
+            self.importBabyEtapa3()
+            self.BlenshapeCurve('BlondeBabyEtapa3_Curves_Hair_Source', etapa3Curves)
+            self.ConnectGeoToFurEtapa3(hairGeo)
